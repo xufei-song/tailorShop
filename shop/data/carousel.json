@@ -1,0 +1,10 @@
+{
+  "intervalMs": 5000,
+  "slides": [
+    { "src": "/hero/1.jpg", "alt": "量体裁衣", "ctaPrimaryHref": "#contact", "ctaSecondaryHref": "#gallery" },
+    { "src": "/hero/2.jpg", "alt": "精选面料", "ctaPrimaryHref": "#contact", "ctaSecondaryHref": "#gallery" },
+    { "src": "/hero/3.jpg", "alt": "精工细作", "ctaPrimaryHref": "#contact", "ctaSecondaryHref": "#gallery" }
+  ]
+}
+
+

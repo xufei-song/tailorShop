@@ -1,11 +1,24 @@
 import React from 'react'
 
 export default function HomePage() {
-  const images = [
-    '/hero/1.jpg',
-    '/hero/2.jpg',
-    '/hero/3.jpg',
-  ]
+  const [slides, setSlides] = React.useState([])
+  const [intervalMs, setIntervalMs] = React.useState(5000)
+
+  React.useEffect(() => {
+    let cancelled = false
+    async function load() {
+      try {
+        const res = await fetch('/api/carousel', { cache: 'no-store' })
+        const data = await res.json()
+        if (!cancelled) {
+          setSlides(data.slides || [])
+          setIntervalMs(data.intervalMs || 5000)
+        }
+      } catch {}
+    }
+    load()
+    return () => { cancelled = true }
+  }, [])
 
   return (
     <div className="page">
@@ -21,7 +34,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      <HeroCarousel images={images} />
+      <HeroCarousel images={slides.map(s => s.src)} intervalMs={intervalMs} />
 
       <section id="services" className="section">
         <div className="container">
@@ -139,16 +152,16 @@ export default function HomePage() {
   )
 }
 
-function HeroCarousel({ images }) {
+function HeroCarousel({ images, intervalMs = 5000 }) {
   const [index, setIndex] = React.useState(0)
   const timerRef = React.useRef(null)
 
   React.useEffect(() => {
     timerRef.current = setInterval(() => {
       setIndex((i) => (i + 1) % images.length)
-    }, 5000)
+    }, intervalMs)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  }, [images.length])
+  }, [images.length, intervalMs])
 
   function prev() {
     setIndex((i) => (i - 1 + images.length) % images.length)
