@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 export default function HomePage() {
   const [slides, setSlides] = React.useState([])
@@ -29,7 +30,7 @@ export default function HomePage() {
             <a href="#services">服务</a>
             <a href="#gallery">作品</a>
             <a href="#about">关于</a>
-            <a href="#contact" className="cta">预约试衣</a>
+            <Link href="/appointment" className="cta">预约试衣</Link>
           </nav>
         </div>
       </header>
@@ -180,7 +181,7 @@ function HeroCarousel({ images, intervalMs = 5000 }) {
         <h1>现代裁缝 · 定制你的专属合身</h1>
         <p>高级版型 | 精选面料 | 手工细节 | 三次试身</p>
         <div className="heroActions">
-          <a href="#contact" className="btn primary">预约试衣</a>
+          <Link href="/appointment" className="btn primary">预约试衣</Link>
           <a href="#gallery" className="btn secondary">查看作品</a>
         </div>
       </div>
