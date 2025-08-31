@@ -1,0 +1,23 @@
+{
+  "name": "tailor-shop",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "next dev ./shop -p 3000",
+    "dev:web": "next dev ./shop -p 3000",
+    "dev:admin": "next dev ./admin -p 3001",
+    "build": "next build ./shop",
+    "build:web": "next build ./shop",
+    "build:admin": "next build ./admin",
+    "start": "next start ./shop -p 3000",
+    "start:web": "next start ./shop -p 3000",
+    "start:admin": "next start ./admin -p 3001"
+  },
+  "dependencies": {
+    "next": "14.2.5",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
+}
+
+
