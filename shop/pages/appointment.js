@@ -10,6 +10,7 @@ export default function AppointmentPage() {
   const [customerPhone, setCustomerPhone] = React.useState('')
   const [customerEmail, setCustomerEmail] = React.useState('')
   const [appointmentType, setAppointmentType] = React.useState('')
+  const [currentMonthOffset, setCurrentMonthOffset] = React.useState(0)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -19,51 +20,49 @@ export default function AppointmentPage() {
     setIsMenuOpen(false)
   }
 
-  // 生成当前月份和下个月的日历数据
+  // 生成单个月份的日历数据
   const generateCalendar = () => {
     const today = new Date()
-    const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+    const targetDate = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset, 1)
+    const monthName = targetDate.toLocaleDateString('zh-CN', { month: 'long' })
+    const year = targetDate.getFullYear()
     
-    const months = []
+    const firstDay = new Date(year, targetDate.getMonth(), 1)
+    const startDate = new Date(firstDay)
+    startDate.setDate(startDate.getDate() - firstDay.getDay())
     
-    for (let month = 0; month < 2; month++) {
-      const monthDate = month === 0 ? currentMonth : nextMonth
-      const monthName = monthDate.toLocaleDateString('zh-CN', { month: 'long' })
-      const year = monthDate.getFullYear()
+    const days = []
+    for (let i = 0; i < 42; i++) {
+      const date = new Date(startDate)
+      date.setDate(startDate.getDate() + i)
       
-      const firstDay = new Date(year, monthDate.getMonth(), 1)
-      const lastDay = new Date(year, monthDate.getMonth() + 1, 0)
-      const startDate = new Date(firstDay)
-      startDate.setDate(startDate.getDate() - firstDay.getDay())
+      const isCurrentMonth = date.getMonth() === targetDate.getMonth()
+      const isToday = date.toDateString() === today.toDateString()
+      const isPast = date < today
+      const isAvailable = !isPast && isCurrentMonth
       
-      const days = []
-      for (let i = 0; i < 42; i++) {
-        const date = new Date(startDate)
-        date.setDate(startDate.getDate() + i)
-        
-        const isCurrentMonth = date.getMonth() === monthDate.getMonth()
-        const isToday = date.toDateString() === today.toDateString()
-        const isPast = date < today
-        const isAvailable = !isPast && isCurrentMonth
-        
-        days.push({
-          date: date,
-          isCurrentMonth,
-          isToday,
-          isPast,
-          isAvailable
-        })
-      }
-      
-      months.push({
-        name: monthName,
-        year,
-        days
+      days.push({
+        date: date,
+        isCurrentMonth,
+        isToday,
+        isPast,
+        isAvailable
       })
     }
     
-    return months
+    return {
+      name: monthName,
+      year,
+      days
+    }
+  }
+
+  const goToPreviousMonth = () => {
+    setCurrentMonthOffset(prev => Math.max(prev - 1, 0))
+  }
+
+  const goToNextMonth = () => {
+    setCurrentMonthOffset(prev => Math.min(prev + 1, 2)) // 最多往后2个月（60天）
   }
 
   const handleDateClick = (date) => {
@@ -97,7 +96,7 @@ export default function AppointmentPage() {
     setAppointmentType('')
   }
 
-  const months = generateCalendar()
+  const currentMonth = generateCalendar()
 
   return (
     <div className="page">
@@ -133,42 +132,54 @@ export default function AppointmentPage() {
       <main className="main-content">
         <div className="container">
           <div className="page-header">
-            <h1>预约试衣</h1>
+      <h1>预约试衣</h1>
             <p>选择您方便的时间，我们将为您安排专业的量体服务</p>
           </div>
 
           <div className="calendar-section">
             <div className="calendar-container">
-              {months.map((month, monthIndex) => (
-                <div key={monthIndex} className="month-calendar">
-                  <div className="month-header">
-                    <h2>{month.name} {month.year}</h2>
+              <div className="month-calendar">
+                <div className="month-header">
+                  <button 
+                    className="nav-month-btn prev" 
+                    onClick={goToPreviousMonth}
+                    disabled={currentMonthOffset === 0}
+                  >
+                    ‹
+                  </button>
+                  <h2>{currentMonth.name} {currentMonth.year}</h2>
+                  <button 
+                    className="nav-month-btn next" 
+                    onClick={goToNextMonth}
+                    disabled={currentMonthOffset === 2}
+                  >
+                    ›
+                  </button>
+                </div>
+                <div className="calendar-grid">
+                  <div className="weekdays">
+                    <div>日</div>
+                    <div>一</div>
+                    <div>二</div>
+                    <div>三</div>
+                    <div>四</div>
+                    <div>五</div>
+                    <div>六</div>
                   </div>
-                  <div className="calendar-grid">
-                    <div className="weekdays">
-                      <div>日</div>
-                      <div>一</div>
-                      <div>二</div>
-                      <div>三</div>
-                      <div>四</div>
-                      <div>五</div>
-                      <div>六</div>
-                    </div>
-                    <div className="days">
-                      {month.days.map((day, dayIndex) => (
-                        <button
-                          key={dayIndex}
-                          className={`day ${day.isCurrentMonth ? 'current-month' : ''} ${day.isToday ? 'today' : ''} ${day.isPast ? 'past' : ''} ${day.isAvailable ? 'available' : ''}`}
-                          onClick={() => handleDateClick(day)}
-                          disabled={!day.isAvailable}
-                        >
-                          {day.date.getDate()}
-                        </button>
-                      ))}
-                    </div>
+                  <div className="days">
+                    {currentMonth.days.map((day, dayIndex) => (
+                      <button
+                        key={dayIndex}
+                        className={`day ${day.isCurrentMonth ? 'current-month' : ''} ${day.isToday ? 'today' : ''} ${day.isPast ? 'past' : ''} ${day.isAvailable ? 'available' : ''}`}
+                        onClick={() => handleDateClick(day)}
+                        disabled={!day.isAvailable}
+                      >
+                        {day.date.getDate()}
+                      </button>
+                    ))}
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
 
@@ -501,9 +512,10 @@ export default function AppointmentPage() {
         }
 
         .calendar-container {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-          gap: 40px;
+          display: flex;
+          justify-content: center;
+          max-width: 600px;
+          margin: 0 auto;
         }
 
         .month-calendar {
@@ -512,10 +524,13 @@ export default function AppointmentPage() {
           padding: 30px;
           box-shadow: 0 10px 40px rgba(0,0,0,0.1);
           border: 1px solid #e2e8f0;
+          width: 100%;
         }
 
         .month-header {
-          text-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
           margin-bottom: 30px;
         }
 
@@ -524,6 +539,44 @@ export default function AppointmentPage() {
           font-weight: 700;
           color: #1a202c;
           margin: 0;
+          flex: 1;
+          text-align: center;
+        }
+
+        .nav-month-btn {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          border: 2px solid #e2e8f0;
+          background: white;
+          color: #4a5568;
+          font-size: 18px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .nav-month-btn:hover:not(:disabled) {
+          border-color: #667eea;
+          color: #667eea;
+          background: rgba(102, 126, 234, 0.05);
+          transform: scale(1.1);
+        }
+
+        .nav-month-btn:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+
+        .nav-month-btn.prev {
+          margin-right: 16px;
+        }
+
+        .nav-month-btn.next {
+          margin-left: 16px;
         }
 
         .calendar-grid {
@@ -556,7 +609,7 @@ export default function AppointmentPage() {
           aspect-ratio: 1;
           border: none;
           background: transparent;
-          border-radius: 12px;
+          border-radius: 10px;
           font-size: 16px;
           font-weight: 500;
           cursor: pointer;
@@ -565,6 +618,7 @@ export default function AppointmentPage() {
           align-items: center;
           justify-content: center;
           position: relative;
+          min-height: 40px;
         }
 
         .day.current-month {
@@ -918,12 +972,31 @@ export default function AppointmentPage() {
           }
 
           .calendar-container {
-            grid-template-columns: 1fr;
-            gap: 30px;
+            max-width: 100%;
           }
 
           .month-calendar {
             padding: 20px;
+          }
+
+          .month-header h2 {
+            font-size: 20px;
+          }
+
+          .nav-month-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+          }
+
+          .weekdays div {
+            font-size: 12px;
+            padding: 6px 0;
+          }
+
+          .day {
+            font-size: 14px;
+            min-height: 35px;
           }
 
           .form-actions {
