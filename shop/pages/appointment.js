@@ -9,7 +9,7 @@ export default function AppointmentPage() {
   const [customerName, setCustomerName] = React.useState('')
   const [customerPhone, setCustomerPhone] = React.useState('')
   const [customerEmail, setCustomerEmail] = React.useState('')
-  const [appointmentType, setAppointmentType] = React.useState('')
+  const [customerNotes, setCustomerNotes] = React.useState('')
   const [currentMonthOffset, setCurrentMonthOffset] = React.useState(0)
 
   const toggleMenu = () => {
@@ -81,7 +81,7 @@ export default function AppointmentPage() {
       name: customerName,
       phone: customerPhone,
       email: customerEmail,
-      type: appointmentType
+      notes: customerNotes
     })
     
     // 模拟提交成功
@@ -93,7 +93,7 @@ export default function AppointmentPage() {
     setCustomerName('')
     setCustomerPhone('')
     setCustomerEmail('')
-    setAppointmentType('')
+    setCustomerNotes('')
   }
 
   const currentMonth = generateCalendar()
@@ -214,29 +214,19 @@ export default function AppointmentPage() {
                   required
                 >
                   <option value="">请选择时间</option>
+                  <option value="10:00">10:00</option>
                   <option value="11:00">11:00</option>
+                  <option value="12:00">12:00</option>
                   <option value="13:00">13:00</option>
+                  <option value="14:00">14:00</option>
                   <option value="15:00">15:00</option>
+                  <option value="16:00">16:00</option>
                   <option value="17:00">17:00</option>
-                  <option value="19:00">19:00</option>
+                  <option value="18:00">18:00</option>
                 </select>
               </div>
               
-              <div className="form-group">
-                <label>预约类型</label>
-                <select 
-                  value={appointmentType} 
-                  onChange={(e) => setAppointmentType(e.target.value)}
-                  required
-                >
-                  <option value="">请选择类型</option>
-                  <option value="西装定制">西装定制</option>
-                  <option value="衬衫定制">衬衫定制</option>
-                  <option value="大衣定制">大衣定制</option>
-                  <option value="裤装定制">裤装定制</option>
-                  <option value="量体咨询">量体咨询</option>
-                </select>
-              </div>
+
 
               <div className="form-group">
                 <label>姓名</label>
@@ -268,6 +258,16 @@ export default function AppointmentPage() {
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   placeholder="请输入您的邮箱地址"
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>备注</label>
+                <textarea 
+                  value={customerNotes} 
+                  onChange={(e) => setCustomerNotes(e.target.value)}
+                  placeholder="请输入您的特殊需求或备注信息（可选）"
+                  rows="3"
                 />
               </div>
 
@@ -702,6 +702,7 @@ export default function AppointmentPage() {
           justify-content: center;
           z-index: 2000;
           padding: 20px;
+          overflow-y: auto;
         }
 
         .dialog {
@@ -712,8 +713,10 @@ export default function AppointmentPage() {
           width: 100%;
           max-height: 90vh;
           overflow-y: auto;
+          overflow-x: hidden;
           box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           animation: dialogSlideIn 0.3s ease-out;
+          box-sizing: border-box;
         }
 
         @keyframes dialogSlideIn {
@@ -733,6 +736,8 @@ export default function AppointmentPage() {
           justify-content: space-between;
           padding: 24px 30px;
           border-bottom: 1px solid #e2e8f0;
+          box-sizing: border-box;
+          width: 100%;
         }
 
         .dialog-header h3 {
@@ -760,6 +765,8 @@ export default function AppointmentPage() {
 
         .booking-form {
           padding: 30px;
+          box-sizing: border-box;
+          width: 100%;
         }
 
         .form-group {
@@ -775,7 +782,8 @@ export default function AppointmentPage() {
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
           width: 100%;
           padding: 14px 16px;
           border: 2px solid #e2e8f0;
@@ -783,13 +791,21 @@ export default function AppointmentPage() {
           font-size: 16px;
           transition: all 0.3s ease;
           background: white;
+          font-family: inherit;
+          box-sizing: border-box;
         }
 
         .form-group input:focus,
-        .form-group select:focus {
+        .form-group select:focus,
+        .form-group textarea:focus {
           outline: none;
           border-color: #667eea;
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+          resize: vertical;
+          min-height: 80px;
         }
 
         .form-actions {
@@ -1001,6 +1017,19 @@ export default function AppointmentPage() {
 
           .form-actions {
             flex-direction: column;
+          }
+
+          .dialog {
+            max-width: 95vw;
+            margin: 0 10px;
+          }
+
+          .dialog-header {
+            padding: 20px 20px;
+          }
+
+          .booking-form {
+            padding: 20px;
           }
 
           .footer-content {
