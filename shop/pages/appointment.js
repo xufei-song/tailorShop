@@ -11,6 +11,7 @@ export default function AppointmentPage() {
   const [customerEmail, setCustomerEmail] = React.useState('')
   const [customerNotes, setCustomerNotes] = React.useState('')
   const [currentMonthOffset, setCurrentMonthOffset] = React.useState(0)
+  const dialogRef = React.useRef(null)
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -19,6 +20,43 @@ export default function AppointmentPage() {
   const closeMenu = () => {
     setIsMenuOpen(false)
   }
+
+  // 处理对话框打开时的焦点和滚动锁定
+  React.useEffect(() => {
+    if (isDialogOpen) {
+      // 锁定背景页面滚动
+      document.body.style.overflow = 'hidden'
+      
+      // 将焦点设置到对话框
+      if (dialogRef.current) {
+        dialogRef.current.focus()
+      }
+    } else {
+      // 恢复背景页面滚动
+      document.body.style.overflow = 'unset'
+    }
+
+    // 清理函数
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isDialogOpen])
+
+  // 处理键盘事件
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape' && isDialogOpen) {
+      setIsDialogOpen(false)
+    }
+  }
+
+  React.useEffect(() => {
+    if (isDialogOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+    }
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isDialogOpen])
 
   // 生成单个月份的日历数据
   const generateCalendar = () => {
@@ -200,7 +238,12 @@ export default function AppointmentPage() {
       {/* 预约对话框 */}
       {isDialogOpen && (
         <div className="dialog-overlay" onClick={() => setIsDialogOpen(false)}>
-          <div className="dialog" onClick={(e) => e.stopPropagation()}>
+          <div 
+            className="dialog" 
+            ref={dialogRef}
+            tabIndex={-1}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="dialog-header">
               <h3>预约 {selectedDate?.toLocaleDateString('zh-CN')}</h3>
               <button className="close-btn" onClick={() => setIsDialogOpen(false)}>×</button>
@@ -717,6 +760,11 @@ export default function AppointmentPage() {
           box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
           animation: dialogSlideIn 0.3s ease-out;
           box-sizing: border-box;
+          outline: none;
+        }
+
+        .dialog:focus {
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25), 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
 
         @keyframes dialogSlideIn {
