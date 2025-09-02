@@ -207,8 +207,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="contact-actions">
-                <Link href="/appointment" className="btn primary">立即预约</Link>
-                <a href="mailto:hi@tailorshop.example" className="btn secondary">邮件咨询</a>
+                <button className="btn primary" onClick={() => window.location.href='/appointment'}>立即预约</button>
+                <button className="btn secondary" onClick={() => window.location.href='mailto:hi@tailorshop.example'}>邮件咨询</button>
               </div>
             </div>
             <div className="contact-promo">
@@ -633,33 +633,86 @@ export default function HomePage() {
         }
         
         .btn {
-          display: inline-block;
-          padding: 14px 28px;
-          border-radius: 8px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 16px 32px;
+          border-radius: 12px;
           text-decoration: none;
           font-weight: 600;
-          transition: all 0.2s ease;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          border: none;
+          cursor: pointer;
+          font-size: 16px;
+          font-family: inherit;
+          position: relative;
+          overflow: hidden;
+          min-width: 140px;
+          height: 52px;
         }
         
         .btn.primary {
-          background: #1a202c;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
           color: #fff;
+          box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
         }
         
         .btn.primary:hover {
-          background: #2d3748;
+          background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+          transform: translateY(-3px);
+          box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
+        }
+        
+        .btn.primary:active {
           transform: translateY(-1px);
         }
         
+        .btn.primary::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+          transition: left 0.5s;
+        }
+        
+        .btn.primary:hover::before {
+          left: 100%;
+        }
+        
         .btn.secondary {
-          background: #f7fafc;
+          background: rgba(255, 255, 255, 0.1);
           color: #1a202c;
-          border: 1px solid #e2e8f0;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          backdrop-filter: blur(20px);
         }
         
         .btn.secondary:hover {
-          background: #edf2f7;
-          border-color: #cbd5e0;
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.4);
+          transform: translateY(-3px);
+          box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn.secondary:active {
+          transform: translateY(-1px);
+        }
+        
+        .btn.secondary::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 0;
+          height: 2px;
+          background: linear-gradient(90deg, #667eea, #764ba2);
+          transition: width 0.3s ease;
+        }
+        
+        .btn.secondary:hover::after {
+          width: 100%;
         }
         
         .contact-promo {
@@ -895,10 +948,10 @@ function HeroCarousel({ images, intervalMs = 5000 }) {
         <div className="hero-content">
           <h1>现代裁缝 · 定制你的专属合身</h1>
           <p>高级版型 | 精选面料 | 手工细节 | 三次试身</p>
-          <div className="hero-actions">
-            <Link href="/appointment" className="btn primary">预约试衣</Link>
-            <a href="#gallery" className="btn secondary">查看作品</a>
-          </div>
+                        <div className="hero-actions">
+                <button className="btn primary" onClick={() => window.location.href='/appointment'}>预约试衣</button>
+                <button className="btn secondary" onClick={() => document.getElementById('gallery').scrollIntoView({behavior: 'smooth'})}>查看作品</button>
+              </div>
         </div>
       </div>
 
@@ -980,26 +1033,32 @@ function HeroCarousel({ images, intervalMs = 5000 }) {
           transition: all 0.2s ease;
         }
         
-        .hero-actions .btn.primary {
-          background: #1a202c;
-          color: white;
-        }
-        
-        .hero-actions .btn.primary:hover {
-          background: #2d3748;
-          transform: translateY(-2px);
-        }
-        
-        .hero-actions .btn.secondary {
-          background: rgba(255,255,255,0.2);
-          color: white;
-          border: 1px solid rgba(255,255,255,0.3);
-        }
-        
-        .hero-actions .btn.secondary:hover {
-          background: rgba(255,255,255,0.3);
-          border-color: rgba(255,255,255,0.5);
-        }
+                                   .hero-actions .btn.primary {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+            border: none;
+          }
+          
+          .hero-actions .btn.primary:hover {
+            background: linear-gradient(135deg, #ee5a24 0%, #ff6b6b 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 107, 107, 0.6);
+          }
+          
+          .hero-actions .btn.secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(20px);
+          }
+          
+          .hero-actions .btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(255, 255, 255, 0.3);
+          }
         
         .nav-btn { 
           position: absolute; 
