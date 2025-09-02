@@ -6,7 +6,7 @@ Authoritative References
 
 Template for Build and Problem-Solving
 - 参考模板工程目录（构建与问题解决的重要依据）：
-  ./next.js/examples/cms-buttercms
+  ./next.js/examples/
 
 Guidance and Priorities
 - 参考优先级：本仓库现有实现 > 上述模板工程 > 官方文档。

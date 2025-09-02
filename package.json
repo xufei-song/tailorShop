@@ -11,13 +11,19 @@
     "build:admin": "next build ./admin",
     "start": "next start ./shop -p 3000",
     "start:web": "next start ./shop -p 3000",
-    "start:admin": "next start ./admin -p 3001"
+    "start:admin": "next start ./admin -p 3001",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "next": "14.2.5",
+    "@prisma/client": "latest",
+    "next": "^14.2.32",
     "react": "18.2.0",
     "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "prisma": "latest",
+    "tsx": "^4.20.5"
   }
 }
-
-
