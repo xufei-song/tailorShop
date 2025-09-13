@@ -20,7 +20,17 @@ export default function AdminHome() {
   // 状态管理
   const [activeTab, setActiveTab] = React.useState('appointments');
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
   const itemsPerPage = 10;
+  
+  // 动态更新功能
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    // 模拟API调用延迟
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsRefreshing(false);
+    // 这里可以添加实际的数据刷新逻辑
+  };
   
   // Mock数据：最近3天的预约信息（32条数据）
   const recentAppointments = [
@@ -80,21 +90,26 @@ export default function AdminHome() {
       <main className="container main">
         <h1>管理后台</h1>
         <div className="grid">
-          <div className={`card ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
-            <h3>订单管理</h3>
-            <p>查看与更新客户订单状态。</p>
-          </div>
-          <div className={`card ${activeTab === 'customers' ? 'active' : ''}`} onClick={() => setActiveTab('customers')}>
-            <h3>客户管理</h3>
-            <p>客户档案、量体数据与偏好。</p>
-          </div>
-          <div className={`card ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>
-            <h3>面料库存</h3>
-            <p>品牌、色卡、库存与采购。</p>
-          </div>
           <div className={`card ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
             <h3>预约日历</h3>
             <p>试衣与量体安排一目了然。</p>
+            <div className="card-actions">
+              <button 
+                className="refresh-btn" 
+                onClick={(e) => { e.stopPropagation(); handleRefresh(); }}
+                disabled={isRefreshing}
+              >
+                {isRefreshing ? '刷新中...' : '刷新数据'}
+              </button>
+            </div>
+          </div>
+          <div className={`card ${activeTab === 'blog' ? 'active' : ''}`} onClick={() => setActiveTab('blog')}>
+            <h3>博客管理</h3>
+            <p>上传和管理店铺日常博客内容。</p>
+          </div>
+          <div className={`card ${activeTab === 'images' ? 'active' : ''}`} onClick={() => setActiveTab('images')}>
+            <h3>图片管理</h3>
+            <p>上传和管理主页轮播图片。</p>
           </div>
         </div>
 
@@ -174,53 +189,46 @@ export default function AdminHome() {
             </div>
           )}
 
-          {activeTab === 'customers' && (
-            <div className="customers-section">
-              <h2>客户管理</h2>
+          {activeTab === 'blog' && (
+            <div className="blog-section">
+              <h2>博客管理</h2>
               <div className="content-placeholder">
-                <p>这里是客户管理功能的内容区域。</p>
-                <p>您可以在这里管理客户档案、量体数据与偏好设置。</p>
+                <p>这里是博客管理功能的内容区域。</p>
+                <p>您可以在这里上传和管理店铺日常博客内容。</p>
                 <p>功能包括：</p>
                 <ul>
-                  <li>客户信息录入与编辑</li>
-                  <li>量体数据管理</li>
-                  <li>客户偏好设置</li>
-                  <li>客户历史记录查询</li>
+                  <li>博客文章发布与编辑</li>
+                  <li>图片上传与管理</li>
+                  <li>文章分类与标签</li>
+                  <li>发布状态管理</li>
+                  <li>博客预览与发布</li>
                 </ul>
+                <div className="action-buttons">
+                  <button className="primary-btn">新建博客</button>
+                  <button className="secondary-btn">管理现有博客</button>
+                </div>
               </div>
             </div>
           )}
 
-          {activeTab === 'orders' && (
-            <div className="orders-section">
-              <h2>订单管理</h2>
+          {activeTab === 'images' && (
+            <div className="images-section">
+              <h2>图片管理</h2>
               <div className="content-placeholder">
-                <p>这里是订单管理功能的内容区域。</p>
-                <p>您可以在这里查看与更新客户订单状态。</p>
+                <p>这里是图片管理功能的内容区域。</p>
+                <p>您可以在这里上传和管理主页轮播图片。</p>
                 <p>功能包括：</p>
                 <ul>
-                  <li>订单列表查看</li>
-                  <li>订单状态更新</li>
-                  <li>订单详情管理</li>
-                  <li>订单统计报表</li>
+                  <li>轮播图片上传</li>
+                  <li>图片排序与编辑</li>
+                  <li>图片预览与删除</li>
+                  <li>图片尺寸优化</li>
+                  <li>轮播设置管理</li>
                 </ul>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'inventory' && (
-            <div className="inventory-section">
-              <h2>面料库存</h2>
-              <div className="content-placeholder">
-                <p>这里是面料库存功能的内容区域。</p>
-                <p>您可以在这里管理品牌、色卡、库存与采购。</p>
-                <p>功能包括：</p>
-                <ul>
-                  <li>面料品牌管理</li>
-                  <li>色卡库维护</li>
-                  <li>库存数量跟踪</li>
-                  <li>采购计划制定</li>
-                </ul>
+                <div className="action-buttons">
+                  <button className="primary-btn">上传新图片</button>
+                  <button className="secondary-btn">管理现有图片</button>
+                </div>
               </div>
             </div>
           )}
@@ -234,7 +242,7 @@ export default function AdminHome() {
         .nav { display: flex; align-items: center; height: 60px; }
         .brand { font-weight: 700; }
         .main { padding: 24px 0; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 12px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px; }
         .card { 
           display: block; 
           padding: 16px; 
@@ -252,6 +260,26 @@ export default function AdminHome() {
           background-color: #eff6ff; 
           box-shadow: 0 0 0 1px #3b82f6;
         }
+        .card-actions { 
+          margin-top: 12px; 
+          display: flex; 
+          justify-content: flex-end; 
+        }
+        .refresh-btn { 
+          background-color: #10b981; 
+          color: white; 
+          border: none; 
+          padding: 8px 16px; 
+          border-radius: 6px; 
+          font-size: 0.875rem; 
+          cursor: pointer; 
+          transition: background-color 0.2s;
+        }
+        .refresh-btn:hover:not(:disabled) { background-color: #059669; }
+        .refresh-btn:disabled { 
+          opacity: 0.6; 
+          cursor: not-allowed; 
+        }
         
         /* 内容区域样式 */
         .content-section { margin-top: 40px; }
@@ -268,6 +296,39 @@ export default function AdminHome() {
         .content-placeholder p { margin-bottom: 12px; color: #475569; }
         .content-placeholder ul { margin: 16px 0; padding-left: 20px; }
         .content-placeholder li { margin-bottom: 8px; color: #64748b; }
+        .action-buttons { 
+          margin-top: 24px; 
+          display: flex; 
+          gap: 12px; 
+          flex-wrap: wrap; 
+        }
+        .primary-btn { 
+          background-color: #3b82f6; 
+          color: white; 
+          border: none; 
+          padding: 12px 24px; 
+          border-radius: 8px; 
+          font-size: 0.875rem; 
+          font-weight: 500; 
+          cursor: pointer; 
+          transition: background-color 0.2s;
+        }
+        .primary-btn:hover { background-color: #2563eb; }
+        .secondary-btn { 
+          background-color: #f8fafc; 
+          color: #475569; 
+          border: 1px solid #e2e8f0; 
+          padding: 12px 24px; 
+          border-radius: 8px; 
+          font-size: 0.875rem; 
+          font-weight: 500; 
+          cursor: pointer; 
+          transition: all 0.2s;
+        }
+        .secondary-btn:hover { 
+          background-color: #f1f5f9; 
+          border-color: #3b82f6; 
+        }
         
         /* 预约表格样式 */
         .appointments-section { margin-top: 0; }
@@ -383,6 +444,8 @@ export default function AdminHome() {
           .appointments-table th, .appointments-table td { padding: 12px 8px; }
           .pagination { flex-direction: column; gap: 12px; }
           .pagination-controls { flex-wrap: wrap; justify-content: center; }
+          .action-buttons { flex-direction: column; }
+          .primary-btn, .secondary-btn { width: 100%; text-align: center; }
         }
         @media (max-width: 560px) { 
           .grid { grid-template-columns: 1fr; } 
