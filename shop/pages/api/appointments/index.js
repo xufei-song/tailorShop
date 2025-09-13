@@ -9,6 +9,8 @@ export default async function handler(req, res) {
   console.log('请求 URL:', req.url)
   console.log('查询参数:', req.query)
   console.log('请求头:', req.headers)
+  console.log('环境变量 DATABASE_URL:', process.env.DATABASE_URL)
+  console.log('所有环境变量:', Object.keys(process.env).filter(key => key.includes('DATABASE')))
   console.log('========================')
 
   try {
