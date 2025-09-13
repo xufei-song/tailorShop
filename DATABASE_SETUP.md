@@ -79,7 +79,7 @@ npm run db:seed
 ```
 GET /api/appointments
 查询参数：
-- isProcessed: boolean (可选) - 是否处理
+- status: number (可选) - 状态筛选：0-未处理，1-拒绝，2-待沟通，3-同意
 - page: number (可选) - 页码，默认 1
 - limit: number (可选) - 每页数量，默认 10
 ```
@@ -158,7 +158,7 @@ const newAppointment = await fetch('/api/appointments', {
 ### 在服务端使用
 
 ```javascript
-import { AppointmentModel } from '../../lib/models/Appointment'
+import { AppointmentModel, APPOINTMENT_STATUS } from '../../lib/models/Appointment'
 
 // 创建预约
 const appointment = await AppointmentModel.create({
@@ -166,15 +166,30 @@ const appointment = await AppointmentModel.create({
   name: '张三',
   phone: '13800138001',
   email: 'zhangsan@example.com',
-  notes: '首次预约'
+  notes: '首次预约',
+  status: APPOINTMENT_STATUS.PENDING
 })
 
 // 获取预约列表
 const appointments = await AppointmentModel.findAll({
-  isProcessed: false,
+  status: APPOINTMENT_STATUS.PENDING,
   skip: 0,
   take: 10
 })
+
+// 更新预约状态
+await AppointmentModel.updateStatus(1, APPOINTMENT_STATUS.APPROVED)
+// 或使用便捷方法
+await AppointmentModel.approve(1)
+await AppointmentModel.reject(2)
+await AppointmentModel.markAsPendingCommunication(3)
+
+// 获取状态统计
+const stats = await AppointmentModel.getStats()
+console.log(stats) // { total: 10, pending: 5, rejected: 2, pendingCommunication: 2, approved: 1 }
+
+// 获取状态名称
+const statusName = AppointmentModel.getStatusName(APPOINTMENT_STATUS.PENDING) // "未处理"
 ```
 
 ## 开发命令

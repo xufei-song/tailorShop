@@ -101,72 +101,7 @@ GET http://localhost:3000/api/appointments?isProcessed=false&page=1&limit=10
 }
 ```
 
-### 3. 获取单个预约
-
-**接口：** `GET /api/appointments/[id]`
-
-**路径参数：**
-- `id` (number) - 预约ID
-
-**示例请求：**
-```http
-GET http://localhost:3000/api/appointments/1
-```
-
-### 4. 更新预约
-
-**接口：** `PUT /api/appointments/[id]`
-
-**路径参数：**
-- `id` (number) - 预约ID
-
-**请求体：**
-```json
-{
-  "appointmentTime": "2024-01-16T14:00:00Z",
-  "name": "更新后的姓名",
-  "phone": "13900139000",
-  "email": "updated@example.com",
-  "notes": "更新后的备注",
-  "isProcessed": true
-}
-```
-
-**响应示例：**
-```json
-{
-  "success": true,
-  "data": {
-    "id": 1,
-    "appointmentTime": "2024-01-16T14:00:00.000Z",
-    "name": "更新后的姓名",
-    "phone": "13900139000",
-    "email": "updated@example.com",
-    "notes": "更新后的备注",
-    "isProcessed": true,
-    "createdAt": "2024-01-15T08:00:00.000Z",
-    "updatedAt": "2024-01-16T14:00:00.000Z"
-  },
-  "message": "预约更新成功"
-}
-```
-
-### 5. 删除预约
-
-**接口：** `DELETE /api/appointments/[id]`
-
-**路径参数：**
-- `id` (number) - 预约ID
-
-**响应示例：**
-```json
-{
-  "success": true,
-  "message": "预约删除成功"
-}
-```
-
-### 6. 获取轮播图配置
+### 3. 获取轮播图配置
 
 **接口：** `GET /api/carousel`
 
