@@ -24,6 +24,28 @@ Operational Notes
 - 使用 test/api-test.http 文件进行 API 接口测试，确保功能正确性。
 - 如需偏离上述参考，需给出明确理由（可维护性/安全/性能/成本等）。
 
+Environment Configuration
+- 所有使用数据库的 API 接口文件必须在文件顶部添加环境变量设置：
+  ```javascript
+  // 确保环境变量被设置
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = "file:./dev.db"
+    console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
+  }
+  ```
+- 数据库连接使用相对路径 "file:./dev.db"，确保跨平台兼容性。
+- 生产环境需要配置正确的 DATABASE_URL 环境变量。
+- 已配置的 API 文件：
+  - shop/pages/api/appointments/index.js
+  - admin/pages/api/appointments/index.js
+  - admin/pages/api/appointments/[id].js
+  - admin/pages/api/appointments/stats.js
+
+Known Issues & TODO
+- [ ] 修复环境变量配置不一致问题：当前 lib/prisma.ts 使用绝对路径，API 接口使用相对路径
+- [ ] 统一环境变量管理：建议使用 .env.local 文件统一管理环境变量
+- [ ] 移除硬编码的环境变量设置，改为从环境变量文件读取
+
 Build & Repo Boundaries
 - 本项目在仓库根目录构建与运行。
 - `next.js` 目录为下载的参考工程，禁止修改（只读）。如需实现功能，请在仓库根目录新增/修改代码。

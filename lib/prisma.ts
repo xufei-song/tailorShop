@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client'
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = "file:D:/work/workspace/TailorShop/dev.db"
+    // process.env.DATABASE_URL = "file:./dev.db"
   console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
 }
 

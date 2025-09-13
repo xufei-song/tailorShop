@@ -1,5 +1,11 @@
 import { AppointmentModel } from '../../../lib/models/Appointment'
 
+// 确保环境变量被设置
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = "file:./dev.db"
+  console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
+}
+
 export default async function handler(req, res) {
   const { method, query } = req
   const { id } = query

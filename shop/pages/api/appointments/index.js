@@ -1,5 +1,11 @@
 import { AppointmentModel } from '../../../../lib/models/Appointment'
 
+// 确保环境变量被设置
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = "file:./dev.db"
+  console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
+}
+
 export default async function handler(req, res) {
   const { method } = req
 
@@ -18,10 +24,10 @@ export default async function handler(req, res) {
       case 'GET':
         // 获取预约列表
         console.log('处理 GET 请求 - 获取预约列表')
-        const { isProcessed, page = 1, limit = 10, startDate, endDate } = req.query
+        const { status, page = 1, limit = 10, startDate, endDate } = req.query
         const skip = (parseInt(page) - 1) * parseInt(limit)
         
-        console.log('查询参数解析:', { isProcessed, page, limit, skip, startDate, endDate })
+        console.log('查询参数解析:', { status, page, limit, skip, startDate, endDate })
         
         // 验证日期格式
         let startDateObj = null
@@ -55,9 +61,22 @@ export default async function handler(req, res) {
           })
         }
         
+        // 验证状态参数
+        let statusFilter = undefined
+        if (status !== undefined) {
+          const statusNum = parseInt(status)
+          if (isNaN(statusNum) || statusNum < 0 || statusNum > 3) {
+            return res.status(400).json({
+              success: false,
+              message: '状态参数无效，请使用 0-3 之间的数字：0-未处理，1-拒绝，2-待沟通，3-同意'
+            })
+          }
+          statusFilter = statusNum
+        }
+        
         console.log('开始调用 AppointmentModel.findAll...')
         const appointments = await AppointmentModel.findAll({
-          isProcessed: isProcessed === 'true' ? true : isProcessed === 'false' ? false : undefined,
+          status: statusFilter,
           skip,
           take: parseInt(limit),
           startDate: startDateObj,
