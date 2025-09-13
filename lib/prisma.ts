@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client'
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined
-}
+// 使用 JSDoc 类型注释而不是 TypeScript 类型断言
+/** @type {PrismaClient | undefined} */
+const globalForPrisma = globalThis
 
 export const prisma =
   globalForPrisma.prisma ??
