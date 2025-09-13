@@ -11,6 +11,8 @@ export default function AppointmentPage() {
   const [customerEmail, setCustomerEmail] = React.useState('')
   const [customerNotes, setCustomerNotes] = React.useState('')
   const [currentMonthOffset, setCurrentMonthOffset] = React.useState(0)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [submitError, setSubmitError] = React.useState('')
   const dialogRef = React.useRef(null)
 
   const toggleMenu = () => {
@@ -110,28 +112,74 @@ export default function AppointmentPage() {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // 这里可以添加预约提交逻辑
-    console.log('预约信息:', {
-      date: selectedDate,
-      time: selectedTime,
-      name: customerName,
-      phone: customerPhone,
-      email: customerEmail,
-      notes: customerNotes
-    })
     
-    // 模拟提交成功
-    alert('预约提交成功！我们会尽快与您联系确认。')
-    setIsDialogOpen(false)
-    // 重置表单
+    // 清除之前的错误信息
+    setSubmitError('')
+    setIsSubmitting(true)
+    
+    try {
+      // 组合日期和时间
+      const appointmentDateTime = new Date(selectedDate)
+      const [hours, minutes] = selectedTime.split(':').map(Number)
+      appointmentDateTime.setHours(hours, minutes, 0, 0)
+      
+      console.log('提交预约信息:', {
+        appointmentTime: appointmentDateTime.toISOString(),
+        name: customerName,
+        phone: customerPhone,
+        email: customerEmail,
+        notes: customerNotes
+      })
+      
+      // 调用API创建预约
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointmentTime: appointmentDateTime.toISOString(),
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail,
+          notes: customerNotes
+        })
+      })
+      
+      const result = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(result.message || '预约提交失败')
+      }
+      
+      if (result.success) {
+        // 预约成功
+        alert('预约提交成功！我们会尽快与您联系确认。')
+        setIsDialogOpen(false)
+        // 重置表单
+        resetForm()
+      } else {
+        throw new Error(result.message || '预约提交失败')
+      }
+      
+    } catch (error) {
+      console.error('预约提交错误:', error)
+      setSubmitError(error.message || '预约提交失败，请稍后重试')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+  
+  const resetForm = () => {
     setSelectedDate(null)
     setSelectedTime('')
     setCustomerName('')
     setCustomerPhone('')
     setCustomerEmail('')
     setCustomerNotes('')
+    setSubmitError('')
   }
 
   const currentMonth = generateCalendar()
@@ -249,12 +297,20 @@ export default function AppointmentPage() {
               <button className="close-btn" onClick={() => setIsDialogOpen(false)}>×</button>
             </div>
             <form onSubmit={handleSubmit} className="booking-form">
+              {/* 错误信息显示 */}
+              {submitError && (
+                <div className="error-message">
+                  {submitError}
+                </div>
+              )}
+              
               <div className="form-group">
                 <label>预约时间</label>
                 <select 
                   value={selectedTime} 
                   onChange={(e) => setSelectedTime(e.target.value)}
                   required
+                  disabled={isSubmitting}
                 >
                   <option value="">请选择时间</option>
                   <option value="10:00">10:00</option>
@@ -279,6 +335,7 @@ export default function AppointmentPage() {
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="请输入您的姓名"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -290,6 +347,7 @@ export default function AppointmentPage() {
                   onChange={(e) => setCustomerPhone(e.target.value)}
                   placeholder="请输入您的手机号码"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -301,6 +359,7 @@ export default function AppointmentPage() {
                   onChange={(e) => setCustomerEmail(e.target.value)}
                   placeholder="请输入您的邮箱地址"
                   required
+                  disabled={isSubmitting}
                 />
               </div>
 
@@ -311,15 +370,25 @@ export default function AppointmentPage() {
                   onChange={(e) => setCustomerNotes(e.target.value)}
                   placeholder="请输入您的特殊需求或备注信息（可选）"
                   rows="3"
+                  disabled={isSubmitting}
                 />
               </div>
 
               <div className="form-actions">
-                <button type="button" className="btn secondary" onClick={() => setIsDialogOpen(false)}>
+                <button 
+                  type="button" 
+                  className="btn secondary" 
+                  onClick={() => setIsDialogOpen(false)}
+                  disabled={isSubmitting}
+                >
                   取消
                 </button>
-                <button type="submit" className="btn primary">
-                  确认预约
+                <button 
+                  type="submit" 
+                  className="btn primary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? '提交中...' : '确认预约'}
                 </button>
               </div>
             </form>
@@ -851,9 +920,29 @@ export default function AppointmentPage() {
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .form-group input:disabled,
+        .form-group select:disabled,
+        .form-group textarea:disabled {
+          background: #f7fafc;
+          color: #a0aec0;
+          cursor: not-allowed;
+          opacity: 0.7;
+        }
+
         .form-group textarea {
           resize: vertical;
           min-height: 80px;
+        }
+
+        .error-message {
+          background: #fed7d7;
+          color: #c53030;
+          padding: 12px 16px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          border: 1px solid #feb2b2;
+          font-size: 14px;
+          font-weight: 500;
         }
 
         .form-actions {
@@ -913,6 +1002,18 @@ export default function AppointmentPage() {
         
         .btn.secondary:active {
           transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none !important;
+          box-shadow: none !important;
+        }
+
+        .btn:disabled:hover {
+          transform: none !important;
+          box-shadow: none !important;
         }
 
         .footer {
