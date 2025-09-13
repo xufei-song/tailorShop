@@ -20,17 +20,7 @@ export default function AdminHome() {
   // 状态管理
   const [activeTab, setActiveTab] = React.useState('appointments');
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
   const itemsPerPage = 10;
-  
-  // 动态更新功能
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    // 模拟API调用延迟
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsRefreshing(false);
-    // 这里可以添加实际的数据刷新逻辑
-  };
   
   // Mock数据：最近3天的预约信息（32条数据）
   const recentAppointments = [
@@ -91,17 +81,8 @@ export default function AdminHome() {
         <h1>管理后台</h1>
         <div className="grid">
           <div className={`card ${activeTab === 'appointments' ? 'active' : ''}`} onClick={() => setActiveTab('appointments')}>
-            <h3>预约日历</h3>
-            <p>试衣与量体安排一目了然。</p>
-            <div className="card-actions">
-              <button 
-                className="refresh-btn" 
-                onClick={(e) => { e.stopPropagation(); handleRefresh(); }}
-                disabled={isRefreshing}
-              >
-                {isRefreshing ? '刷新中...' : '刷新数据'}
-              </button>
-            </div>
+            <h3>预约信息</h3>
+            <p>管理用户数据一目了然。</p>
           </div>
           <div className={`card ${activeTab === 'blog' ? 'active' : ''}`} onClick={() => setActiveTab('blog')}>
             <h3>博客管理</h3>
@@ -117,6 +98,41 @@ export default function AdminHome() {
         <div className="content-section">
           {activeTab === 'appointments' && (
             <div className="appointments-section">
+              {/* 未处理预约信息表格 */}
+              <div className="pending-appointments-section">
+                <h2>未处理预约信息</h2>
+                <div className="table-container">
+                  <table className="appointments-table">
+                    <thead>
+                      <tr>
+                        <th>预约时间</th>
+                        <th>客户姓名</th>
+                        <th>联系电话</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentAppointments.filter(appointment => appointment.status === '待确认').slice(0, 5).map((appointment) => (
+                        <tr key={appointment.id}>
+                          <td>{appointment.appointmentTime}</td>
+                          <td>{appointment.customerName}</td>
+                          <td>{appointment.phone}</td>
+                          <td>
+                            <span className={`status status-${getStatusClass(appointment.status)}`}>
+                              {appointment.status}
+                            </span>
+                          </td>
+                          <td>
+                            <button className="action-btn">处理</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
               <h2>最近3天预约信息</h2>
               <div className="table-container">
                 <table className="appointments-table">
@@ -125,7 +141,6 @@ export default function AdminHome() {
                       <th>预约时间</th>
                       <th>客户姓名</th>
                       <th>联系电话</th>
-                      <th>服务类型</th>
                       <th>状态</th>
                       <th>操作</th>
                     </tr>
@@ -136,7 +151,6 @@ export default function AdminHome() {
                         <td>{appointment.appointmentTime}</td>
                         <td>{appointment.customerName}</td>
                         <td>{appointment.phone}</td>
-                        <td>{appointment.serviceType}</td>
                         <td>
                           <span className={`status status-${getStatusClass(appointment.status)}`}>
                             {appointment.status}
@@ -260,26 +274,6 @@ export default function AdminHome() {
           background-color: #eff6ff; 
           box-shadow: 0 0 0 1px #3b82f6;
         }
-        .card-actions { 
-          margin-top: 12px; 
-          display: flex; 
-          justify-content: flex-end; 
-        }
-        .refresh-btn { 
-          background-color: #10b981; 
-          color: white; 
-          border: none; 
-          padding: 8px 16px; 
-          border-radius: 6px; 
-          font-size: 0.875rem; 
-          cursor: pointer; 
-          transition: background-color 0.2s;
-        }
-        .refresh-btn:hover:not(:disabled) { background-color: #059669; }
-        .refresh-btn:disabled { 
-          opacity: 0.6; 
-          cursor: not-allowed; 
-        }
         
         /* 内容区域样式 */
         .content-section { margin-top: 40px; }
@@ -332,6 +326,18 @@ export default function AdminHome() {
         
         /* 预约表格样式 */
         .appointments-section { margin-top: 0; }
+        .pending-appointments-section { 
+          margin-bottom: 40px; 
+          padding: 20px; 
+          background: #fef3c7; 
+          border: 1px solid #f59e0b; 
+          border-radius: 10px; 
+        }
+        .pending-appointments-section h2 { 
+          margin-bottom: 16px; 
+          color: #92400e; 
+          font-size: 1.25rem; 
+        }
         .table-container { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
         .appointments-table { width: 100%; border-collapse: collapse; }
         .appointments-table th { 
