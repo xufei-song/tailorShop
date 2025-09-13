@@ -35,3 +35,9 @@ Thumbs.db
 
 # Template reference (ignore nested git repo)
 next.js/
+
+#db
+dev.db
+
+#test 
+test/

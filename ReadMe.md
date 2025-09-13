@@ -37,6 +37,9 @@ npm run dev:admin    # http://localhost:3001
 - Admin 位于 `admin/pages/index.js`，通过 `npm run dev:admin` 在 3001 端口启动。
 
 
+# 数据库浏览
+$env:DATABASE_URL="file:../dev.db"; npx prisma studio --browser none
+
 Necessary MCP Tools
 - 
 BrowserTools MCP 启动与连接（Windows）
