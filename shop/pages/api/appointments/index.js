@@ -18,16 +18,50 @@ export default async function handler(req, res) {
       case 'GET':
         // 获取预约列表
         console.log('处理 GET 请求 - 获取预约列表')
-        const { isProcessed, page = 1, limit = 10 } = req.query
+        const { isProcessed, page = 1, limit = 10, startDate, endDate } = req.query
         const skip = (parseInt(page) - 1) * parseInt(limit)
         
-        console.log('查询参数解析:', { isProcessed, page, limit, skip })
+        console.log('查询参数解析:', { isProcessed, page, limit, skip, startDate, endDate })
+        
+        // 验证日期格式
+        let startDateObj = null
+        let endDateObj = null
+        
+        if (startDate) {
+          startDateObj = new Date(startDate)
+          if (isNaN(startDateObj.getTime())) {
+            return res.status(400).json({
+              success: false,
+              message: '开始日期格式不正确，请使用 YYYY-MM-DD 格式'
+            })
+          }
+        }
+        
+        if (endDate) {
+          endDateObj = new Date(endDate)
+          if (isNaN(endDateObj.getTime())) {
+            return res.status(400).json({
+              success: false,
+              message: '结束日期格式不正确，请使用 YYYY-MM-DD 格式'
+            })
+          }
+        }
+        
+        // 验证日期范围
+        if (startDateObj && endDateObj && startDateObj > endDateObj) {
+          return res.status(400).json({
+            success: false,
+            message: '开始日期不能晚于结束日期'
+          })
+        }
         
         console.log('开始调用 AppointmentModel.findAll...')
         const appointments = await AppointmentModel.findAll({
           isProcessed: isProcessed === 'true' ? true : isProcessed === 'false' ? false : undefined,
           skip,
-          take: parseInt(limit)
+          take: parseInt(limit),
+          startDate: startDateObj,
+          endDate: endDateObj
         })
         console.log('查询结果:', appointments)
 
