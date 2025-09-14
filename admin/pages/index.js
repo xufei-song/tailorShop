@@ -20,6 +20,8 @@ export default function AdminHome() {
   // 状态管理
   const [activeTab, setActiveTab] = React.useState('appointments');
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [startDate, setStartDate] = React.useState('');
+  const [endDate, setEndDate] = React.useState('');
   const itemsPerPage = 10;
   
   // Mock数据：最近3天的预约信息（32条数据）
@@ -58,11 +60,33 @@ export default function AdminHome() {
     { id: 32, customerName: "邹女士", serviceType: "试衣修改", appointmentTime: "2024-01-17 12:00", status: "已完成", phone: "108****5678" }
   ];
   
+  // 时间段筛选逻辑
+  const filteredAppointments = React.useMemo(() => {
+    if (!startDate && !endDate) {
+      return recentAppointments;
+    }
+    
+    return recentAppointments.filter(appointment => {
+      const appointmentDate = new Date(appointment.appointmentTime);
+      const start = startDate ? new Date(startDate) : new Date('1900-01-01');
+      const end = endDate ? new Date(endDate + ' 23:59:59') : new Date('2100-12-31');
+      
+      return appointmentDate >= start && appointmentDate <= end;
+    });
+  }, [recentAppointments, startDate, endDate]);
+  
+  // 重置筛选
+  const handleResetFilter = () => {
+    setStartDate('');
+    setEndDate('');
+    setCurrentPage(1);
+  };
+  
   // 分页计算
-  const totalPages = Math.ceil(recentAppointments.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentAppointments = recentAppointments.slice(startIndex, endIndex);
+  const currentAppointments = filteredAppointments.slice(startIndex, endIndex);
   
   // 分页处理函数
   const handlePageChange = (page) => {
@@ -133,7 +157,37 @@ export default function AdminHome() {
                 </div>
               </div>
 
-              <h2>最近3天预约信息</h2>
+              <div className="appointments-header">
+                <h2>最近3天预约信息</h2>
+                <div className="date-filter">
+                  <div className="filter-group">
+                    <label htmlFor="startDate">开始日期：</label>
+                    <input
+                      type="date"
+                      id="startDate"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                  <div className="filter-group">
+                    <label htmlFor="endDate">结束日期：</label>
+                    <input
+                      type="date"
+                      id="endDate"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="date-input"
+                    />
+                  </div>
+                  <button 
+                    className="filter-btn" 
+                    onClick={handleResetFilter}
+                  >
+                    重置
+                  </button>
+                </div>
+              </div>
               <div className="table-container">
                 <table className="appointments-table">
                   <thead>
@@ -168,7 +222,7 @@ export default function AdminHome() {
               {/* 分页组件 */}
               <div className="pagination">
                 <div className="pagination-info">
-                  显示第 {startIndex + 1}-{Math.min(endIndex, recentAppointments.length)} 条，共 {recentAppointments.length} 条记录
+                  显示第 {startIndex + 1}-{Math.min(endIndex, filteredAppointments.length)} 条，共 {filteredAppointments.length} 条记录
                 </div>
                 <div className="pagination-controls">
                   <button 
@@ -338,6 +392,60 @@ export default function AdminHome() {
           color: #92400e; 
           font-size: 1.25rem; 
         }
+        
+        /* 预约信息头部和筛选样式 */
+        .appointments-header { 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          margin-bottom: 20px; 
+          flex-wrap: wrap; 
+          gap: 16px; 
+        }
+        .date-filter { 
+          display: flex; 
+          align-items: center; 
+          gap: 16px; 
+          flex-wrap: wrap; 
+        }
+        .filter-group { 
+          display: flex; 
+          align-items: center; 
+          gap: 8px; 
+        }
+        .filter-group label { 
+          font-size: 0.875rem; 
+          color: #475569; 
+          font-weight: 500; 
+        }
+        .date-input { 
+          padding: 8px 12px; 
+          border: 1px solid #e2e8f0; 
+          border-radius: 6px; 
+          font-size: 0.875rem; 
+          color: #334155; 
+          background: #fff; 
+          transition: border-color 0.2s; 
+        }
+        .date-input:focus { 
+          outline: none; 
+          border-color: #3b82f6; 
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1); 
+        }
+        .filter-btn { 
+          padding: 8px 16px; 
+          background-color: #f8fafc; 
+          color: #475569; 
+          border: 1px solid #e2e8f0; 
+          border-radius: 6px; 
+          font-size: 0.875rem; 
+          cursor: pointer; 
+          transition: all 0.2s; 
+        }
+        .filter-btn:hover { 
+          background-color: #f1f5f9; 
+          border-color: #3b82f6; 
+        }
         .table-container { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 10px; background: #fff; }
         .appointments-table { width: 100%; border-collapse: collapse; }
         .appointments-table th { 
@@ -452,12 +560,17 @@ export default function AdminHome() {
           .pagination-controls { flex-wrap: wrap; justify-content: center; }
           .action-buttons { flex-direction: column; }
           .primary-btn, .secondary-btn { width: 100%; text-align: center; }
+          .appointments-header { flex-direction: column; align-items: flex-start; }
+          .date-filter { width: 100%; justify-content: flex-start; }
         }
         @media (max-width: 560px) { 
           .grid { grid-template-columns: 1fr; } 
           .appointments-table th, .appointments-table td { padding: 8px 6px; font-size: 0.75rem; }
           .pagination-numbers { flex-wrap: wrap; }
           .pagination-number { min-width: 32px; padding: 6px 8px; font-size: 0.75rem; }
+          .date-filter { flex-direction: column; align-items: stretch; gap: 12px; }
+          .filter-group { flex-direction: column; align-items: flex-start; gap: 4px; }
+          .date-input, .filter-btn { width: 100%; }
         }
       `}</style>
     </div>
