@@ -74,10 +74,6 @@ export default function AdminHome() {
         setAppointments(data.data || []);
         setStats(data.stats || { total: 0, pending: 0, processed: 0 });
         
-        // 筛选出未处理的预约（status = 0）
-        const pending = data.data.filter(apt => apt.status === 0);
-        setPendingAppointments(pending);
-        
         // 设置是否进行了日期筛选
         setIsDateFiltered(!!(params.startDate || params.endDate));
       } else {
@@ -90,10 +86,47 @@ export default function AdminHome() {
       setLoading(false);
     }
   };
+
+  // 单独获取未处理预约的函数
+  const fetchPendingAppointments = async () => {
+    try {
+      const response = await fetch('/api/appointments?status=0');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setPendingAppointments(data.data || []);
+      } else {
+        throw new Error(data.message || '获取未处理预约失败');
+      }
+    } catch (err) {
+      console.error('获取未处理预约失败:', err);
+    }
+  };
   
   // 组件加载时获取数据
   React.useEffect(() => {
-    fetchAppointments();
+    // 获取未来3天的预约信息
+    const today = new Date();
+    const threeDaysLater = new Date(today);
+    threeDaysLater.setDate(today.getDate() + 3);
+    
+    // 格式化日期为 YYYY-MM-DD 格式
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = threeDaysLater.toISOString().split('T')[0];
+    
+    // 获取未来3天的预约数据
+    fetchAppointments({
+      startDate: startDate,
+      endDate: endDate
+    });
+    
+    // 获取所有未处理预约
+    fetchPendingAppointments();
   }, []);
   
   
@@ -125,7 +158,19 @@ export default function AdminHome() {
     setEndDate('');
     setCurrentPage(1);
     setIsDateFiltered(false);
-    fetchAppointments();
+    
+    // 重置到未来3天的数据
+    const today = new Date();
+    const threeDaysLater = new Date(today);
+    threeDaysLater.setDate(today.getDate() + 3);
+    
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = threeDaysLater.toISOString().split('T')[0];
+    
+    fetchAppointments({
+      startDate: startDate,
+      endDate: endDate
+    });
   };
   
   // 处理筛选
@@ -231,7 +276,7 @@ export default function AdminHome() {
               </div>
 
               <div className="appointments-header">
-                <h2>最近3天预约信息</h2>
+                <h2>未来3天预约信息</h2>
                 <div className="date-filter">
                   <div className="filter-group">
                     <label htmlFor="startDate">开始日期：</label>
