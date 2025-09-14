@@ -1,7 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 export default function AppointmentPage() {
+  const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = React.useState(false)
   const [selectedDate, setSelectedDate] = React.useState(null)
   const [isDialogOpen, setIsDialogOpen] = React.useState(false)
@@ -21,6 +23,10 @@ export default function AppointmentPage() {
 
   const closeMenu = () => {
     setIsMenuOpen(false)
+  }
+
+  const handleBrandClick = () => {
+    router.push('/')
   }
 
   // 处理对话框打开时的焦点和滚动锁定
@@ -191,7 +197,9 @@ export default function AppointmentPage() {
           <div className="container">
             <div className="navbar">
               <div className="navbar-brand">
-                <div className="brand">TailorShop</div>
+                <button className="brand-button" onClick={handleBrandClick}>
+                  <div className="brand">TailorShop</div>
+                </button>
               </div>
               <nav className={`navbar-nav ${isMenuOpen ? 'mobile-open' : ''}`}>
                 <div className="nav-links">
@@ -473,6 +481,28 @@ export default function AppointmentPage() {
           align-items: center;
         }
         
+        .brand-button {
+          background: none;
+          border: none;
+          padding: 0;
+          margin: 0;
+          cursor: pointer;
+          display: inline-block;
+          transition: all 0.3s ease;
+          text-decoration: none;
+          outline: none;
+        }
+        
+        .brand-button:hover {
+          transform: none;
+        }
+        
+        .brand-button:focus {
+          outline: 2px solid rgba(102, 126, 234, 0.3);
+          outline-offset: 2px;
+          border-radius: 4px;
+        }
+        
         .brand { 
           font-size: 28px;
           font-weight: 800; 
@@ -480,6 +510,18 @@ export default function AppointmentPage() {
           color: #1a202c;
           text-transform: uppercase;
           background: linear-gradient(135deg, #1a202c, #2d3748);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          cursor: pointer;
+          user-select: none;
+          transition: all 0.3s ease;
+          text-decoration: none !important;
+          border: none;
+        }
+        
+        .brand-button:hover .brand {
+          background: linear-gradient(135deg, #667eea, #764ba2);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
