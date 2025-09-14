@@ -59,6 +59,8 @@ export default async function handler(req, res) {
               message: '结束日期格式不正确，请使用 YYYY-MM-DD 格式'
             })
           }
+          // 设置结束日期为当天的23:59:59，确保包含整天的数据
+          endDateObj.setHours(23, 59, 59, 999)
         }
         
         // 验证日期范围

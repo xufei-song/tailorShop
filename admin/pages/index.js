@@ -46,6 +46,7 @@ export default function AdminHome() {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [stats, setStats] = React.useState({ total: 0, pending: 0, processed: 0 });
+  const [isDateFiltered, setIsDateFiltered] = React.useState(false);
   
   // API调用函数
   const fetchAppointments = async (params = {}) => {
@@ -76,6 +77,9 @@ export default function AdminHome() {
         // 筛选出未处理的预约（status = 0）
         const pending = data.data.filter(apt => apt.status === 0);
         setPendingAppointments(pending);
+        
+        // 设置是否进行了日期筛选
+        setIsDateFiltered(!!(params.startDate || params.endDate));
       } else {
         throw new Error(data.message || '获取数据失败');
       }
@@ -95,10 +99,17 @@ export default function AdminHome() {
   
   // 时间段筛选逻辑
   const filteredAppointments = React.useMemo(() => {
+    // 如果API已经进行了日期筛选，直接使用API结果
+    if (isDateFiltered) {
+      return appointments;
+    }
+    
+    // 如果没有进行日期筛选，在客户端进行筛选
     if (!startDate && !endDate) {
       return appointments;
     }
     
+    // 客户端筛选
     return appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.appointmentTime);
       const start = startDate ? new Date(startDate) : new Date('1900-01-01');
@@ -106,13 +117,14 @@ export default function AdminHome() {
       
       return appointmentDate >= start && appointmentDate <= end;
     });
-  }, [appointments, startDate, endDate]);
+  }, [appointments, startDate, endDate, isDateFiltered]);
   
   // 重置筛选
   const handleResetFilter = () => {
     setStartDate('');
     setEndDate('');
     setCurrentPage(1);
+    setIsDateFiltered(false);
     fetchAppointments();
   };
   
