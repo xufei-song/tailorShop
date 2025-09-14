@@ -3,16 +3,32 @@ import React from 'react';
 // 状态样式分类函数
 function getStatusClass(status) {
   switch (status) {
-    case '已确认':
-      return 'confirmed';
-    case '待确认':
+    case 0:
       return 'pending';
-    case '已完成':
-      return 'completed';
-    case '已取消':
+    case 1:
       return 'cancelled';
+    case 2:
+      return 'pending';
+    case 3:
+      return 'confirmed';
     default:
       return 'default';
+  }
+}
+
+// 状态显示文本函数
+function getStatusText(status) {
+  switch (status) {
+    case 0:
+      return '待确认';
+    case 1:
+      return '已拒绝';
+    case 2:
+      return '待沟通';
+    case 3:
+      return '已同意';
+    default:
+      return '未知';
   }
 }
 
@@ -24,62 +40,89 @@ export default function AdminHome() {
   const [endDate, setEndDate] = React.useState('');
   const itemsPerPage = 10;
   
-  // Mock数据：最近3天的预约信息（32条数据）
-  const recentAppointments = [
-    { id: 1, customerName: "张先生", serviceType: "量体定制", appointmentTime: "2024-01-15 09:00", status: "已确认", phone: "138****1234" },
-    { id: 2, customerName: "李女士", serviceType: "试衣修改", appointmentTime: "2024-01-15 10:30", status: "待确认", phone: "139****5678" },
-    { id: 3, customerName: "王先生", serviceType: "量体定制", appointmentTime: "2024-01-15 14:00", status: "已确认", phone: "137****9012" },
-    { id: 4, customerName: "陈女士", serviceType: "试衣修改", appointmentTime: "2024-01-15 16:30", status: "已完成", phone: "136****3456" },
-    { id: 5, customerName: "刘先生", serviceType: "量体定制", appointmentTime: "2024-01-16 09:30", status: "已确认", phone: "135****7890" },
-    { id: 6, customerName: "赵女士", serviceType: "试衣修改", appointmentTime: "2024-01-16 11:00", status: "待确认", phone: "134****2345" },
-    { id: 7, customerName: "孙先生", serviceType: "量体定制", appointmentTime: "2024-01-16 14:30", status: "已确认", phone: "133****6789" },
-    { id: 8, customerName: "周女士", serviceType: "试衣修改", appointmentTime: "2024-01-16 16:00", status: "已完成", phone: "132****0123" },
-    { id: 9, customerName: "吴先生", serviceType: "量体定制", appointmentTime: "2024-01-17 08:30", status: "已确认", phone: "131****4567" },
-    { id: 10, customerName: "郑女士", serviceType: "试衣修改", appointmentTime: "2024-01-17 10:00", status: "待确认", phone: "130****8901" },
-    { id: 11, customerName: "冯先生", serviceType: "量体定制", appointmentTime: "2024-01-17 13:30", status: "已确认", phone: "129****2345" },
-    { id: 12, customerName: "韩女士", serviceType: "试衣修改", appointmentTime: "2024-01-17 15:00", status: "已完成", phone: "128****5678" },
-    { id: 13, customerName: "杨先生", serviceType: "量体定制", appointmentTime: "2024-01-15 08:00", status: "已确认", phone: "127****9012" },
-    { id: 14, customerName: "朱女士", serviceType: "试衣修改", appointmentTime: "2024-01-15 12:00", status: "待确认", phone: "126****3456" },
-    { id: 15, customerName: "秦先生", serviceType: "量体定制", appointmentTime: "2024-01-15 15:30", status: "已确认", phone: "125****7890" },
-    { id: 16, customerName: "尤女士", serviceType: "试衣修改", appointmentTime: "2024-01-15 17:00", status: "已完成", phone: "124****2345" },
-    { id: 17, customerName: "许先生", serviceType: "量体定制", appointmentTime: "2024-01-16 08:00", status: "已确认", phone: "123****6789" },
-    { id: 18, customerName: "何女士", serviceType: "试衣修改", appointmentTime: "2024-01-16 12:30", status: "待确认", phone: "122****0123" },
-    { id: 19, customerName: "吕先生", serviceType: "量体定制", appointmentTime: "2024-01-16 15:30", status: "已确认", phone: "121****4567" },
-    { id: 20, customerName: "施女士", serviceType: "试衣修改", appointmentTime: "2024-01-16 17:30", status: "已完成", phone: "120****8901" },
-    { id: 21, customerName: "张先生", serviceType: "量体定制", appointmentTime: "2024-01-17 07:30", status: "已确认", phone: "119****2345" },
-    { id: 22, customerName: "孔女士", serviceType: "试衣修改", appointmentTime: "2024-01-17 11:30", status: "待确认", phone: "118****5678" },
-    { id: 23, customerName: "曹先生", serviceType: "量体定制", appointmentTime: "2024-01-17 14:00", status: "已确认", phone: "117****9012" },
-    { id: 24, customerName: "严女士", serviceType: "试衣修改", appointmentTime: "2024-01-17 16:30", status: "已完成", phone: "116****3456" },
-    { id: 25, customerName: "华先生", serviceType: "量体定制", appointmentTime: "2024-01-15 07:00", status: "已确认", phone: "115****7890" },
-    { id: 26, customerName: "金女士", serviceType: "试衣修改", appointmentTime: "2024-01-15 11:30", status: "待确认", phone: "114****2345" },
-    { id: 27, customerName: "魏先生", serviceType: "量体定制", appointmentTime: "2024-01-15 13:00", status: "已确认", phone: "113****6789" },
-    { id: 28, customerName: "陶女士", serviceType: "试衣修改", appointmentTime: "2024-01-15 18:00", status: "已完成", phone: "112****0123" },
-    { id: 29, customerName: "姜先生", serviceType: "量体定制", appointmentTime: "2024-01-16 07:00", status: "已确认", phone: "111****4567" },
-    { id: 30, customerName: "戚女士", serviceType: "试衣修改", appointmentTime: "2024-01-16 13:00", status: "待确认", phone: "110****8901" },
-    { id: 31, customerName: "谢先生", serviceType: "量体定制", appointmentTime: "2024-01-17 06:30", status: "已确认", phone: "109****2345" },
-    { id: 32, customerName: "邹女士", serviceType: "试衣修改", appointmentTime: "2024-01-17 12:00", status: "已完成", phone: "108****5678" }
-  ];
+  // API数据状态
+  const [appointments, setAppointments] = React.useState([]);
+  const [pendingAppointments, setPendingAppointments] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [stats, setStats] = React.useState({ total: 0, pending: 0, processed: 0 });
+  
+  // API调用函数
+  const fetchAppointments = async (params = {}) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const queryParams = new URLSearchParams();
+      if (params.status !== undefined) queryParams.append('status', params.status);
+      if (params.startDate) queryParams.append('startDate', params.startDate);
+      if (params.endDate) queryParams.append('endDate', params.endDate);
+      if (params.page) queryParams.append('page', params.page);
+      if (params.limit) queryParams.append('limit', params.limit);
+      
+      const url = `/api/appointments${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setAppointments(data.data || []);
+        setStats(data.stats || { total: 0, pending: 0, processed: 0 });
+        
+        // 筛选出未处理的预约（status = 0）
+        const pending = data.data.filter(apt => apt.status === 0);
+        setPendingAppointments(pending);
+      } else {
+        throw new Error(data.message || '获取数据失败');
+      }
+    } catch (err) {
+      console.error('获取预约数据失败:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // 组件加载时获取数据
+  React.useEffect(() => {
+    fetchAppointments();
+  }, []);
+  
   
   // 时间段筛选逻辑
   const filteredAppointments = React.useMemo(() => {
     if (!startDate && !endDate) {
-      return recentAppointments;
+      return appointments;
     }
     
-    return recentAppointments.filter(appointment => {
+    return appointments.filter(appointment => {
       const appointmentDate = new Date(appointment.appointmentTime);
       const start = startDate ? new Date(startDate) : new Date('1900-01-01');
       const end = endDate ? new Date(endDate + ' 23:59:59') : new Date('2100-12-31');
       
       return appointmentDate >= start && appointmentDate <= end;
     });
-  }, [recentAppointments, startDate, endDate]);
+  }, [appointments, startDate, endDate]);
   
   // 重置筛选
   const handleResetFilter = () => {
     setStartDate('');
     setEndDate('');
     setCurrentPage(1);
+    fetchAppointments();
+  };
+  
+  // 处理筛选
+  const handleFilter = () => {
+    setCurrentPage(1);
+    fetchAppointments({
+      startDate: startDate || undefined,
+      endDate: endDate || undefined
+    });
   };
   
   // 分页计算
@@ -137,14 +180,32 @@ export default function AdminHome() {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentAppointments.filter(appointment => appointment.status === '待确认').slice(0, 5).map((appointment) => (
+                      {loading ? (
+                        <tr>
+                          <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                            加载中...
+                          </td>
+                        </tr>
+                      ) : error ? (
+                        <tr>
+                          <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#dc2626' }}>
+                            加载失败: {error}
+                          </td>
+                        </tr>
+                      ) : pendingAppointments.slice(0, 5).map((appointment) => (
                         <tr key={appointment.id}>
-                          <td>{appointment.appointmentTime}</td>
-                          <td>{appointment.customerName}</td>
+                          <td>{new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}</td>
+                          <td>{appointment.name}</td>
                           <td>{appointment.phone}</td>
                           <td>
                             <span className={`status status-${getStatusClass(appointment.status)}`}>
-                              {appointment.status}
+                              {getStatusText(appointment.status)}
                             </span>
                           </td>
                           <td>
@@ -182,6 +243,12 @@ export default function AdminHome() {
                   </div>
                   <button 
                     className="filter-btn" 
+                    onClick={handleFilter}
+                  >
+                    筛选
+                  </button>
+                  <button 
+                    className="filter-btn" 
                     onClick={handleResetFilter}
                   >
                     重置
@@ -200,14 +267,32 @@ export default function AdminHome() {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentAppointments.map((appointment) => (
+                    {loading ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px' }}>
+                          加载中...
+                        </td>
+                      </tr>
+                    ) : error ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center', padding: '20px', color: '#dc2626' }}>
+                          加载失败: {error}
+                        </td>
+                      </tr>
+                    ) : currentAppointments.map((appointment) => (
                       <tr key={appointment.id}>
-                        <td>{appointment.appointmentTime}</td>
-                        <td>{appointment.customerName}</td>
+                        <td>{new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}</td>
+                        <td>{appointment.name}</td>
                         <td>{appointment.phone}</td>
                         <td>
                           <span className={`status status-${getStatusClass(appointment.status)}`}>
-                            {appointment.status}
+                            {getStatusText(appointment.status)}
                           </span>
                         </td>
                         <td>
@@ -223,6 +308,11 @@ export default function AdminHome() {
               <div className="pagination">
                 <div className="pagination-info">
                   显示第 {startIndex + 1}-{Math.min(endIndex, filteredAppointments.length)} 条，共 {filteredAppointments.length} 条记录
+                  {stats.total > 0 && (
+                    <span style={{ marginLeft: '16px', color: '#64748b' }}>
+                      （总计: {stats.total} | 待处理: {stats.pending} | 已处理: {stats.processed}）
+                    </span>
+                  )}
                 </div>
                 <div className="pagination-controls">
                   <button 
