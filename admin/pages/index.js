@@ -175,6 +175,12 @@ export default function AdminHome() {
   
   // 处理筛选
   const handleFilter = () => {
+    // 检查是否设置了至少一个日期
+    if (!startDate && !endDate) {
+      alert('请至少选择一个开始日期或结束日期');
+      return;
+    }
+    
     setCurrentPage(1);
     fetchAppointments({
       startDate: startDate || undefined,
