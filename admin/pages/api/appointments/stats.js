@@ -1,4 +1,4 @@
-import { AppointmentModel } from '../../../lib/models/Appointment'
+import { AppointmentModel } from '../../../../lib/models/Appointment'
 
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
