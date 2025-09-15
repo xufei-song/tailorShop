@@ -1,5 +1,5 @@
 import { AppointmentModel } from '../../../../lib/models/Appointment'
-const { sendSimpleTestEmail, sendVerificationCode } = require('../../../../lib/email/simple-test')
+const { sendSimpleTestEmail, sendVerificationCode } = require('../../../../lib/email')
 
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
