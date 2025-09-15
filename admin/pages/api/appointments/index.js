@@ -1,5 +1,5 @@
 import { AppointmentModel } from '../../../../lib/models/Appointment'
-const { sendSimpleTestEmail } = require('../../../../lib/email/simple-test')
+const { sendSimpleTestEmail, sendVerificationCode } = require('../../../../lib/email/simple-test')
 
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
@@ -209,6 +209,57 @@ export default async function handler(req, res) {
               error: result.error
             });
           }
+        } else if (action === 'send-verification-code') {
+          // 发送验证码邮件
+          const { email, type = '验证码' } = req.body;
+
+          // 验证必填字段
+          if (!email) {
+            return res.status(400).json({
+              success: false,
+              message: '邮箱地址为必填项'
+            });
+          }
+
+          // 生成6位数字验证码
+          const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+          // 发送验证码邮件
+          const result = await sendVerificationCode(email, code, type);
+
+          if (result.success) {
+            // 将中文类型转换为英文用于API响应
+            let englishType;
+            if (type === '注册验证码') {
+              englishType = 'Registration Verification Code';
+            } else if (type === '登录验证码') {
+              englishType = 'Login Verification Code';
+            } else if (type === '重置密码验证码') {
+              englishType = 'Password Reset Verification Code';
+            } else if (type === '验证码') {
+              englishType = 'Verification Code';
+            } else {
+              englishType = type;
+            }
+
+            res.status(200).json({
+              success: true,
+              message: '验证码发送成功',
+              data: {
+                email: email,
+                code: code, // 注意：生产环境中不应该返回验证码
+                type: englishType,
+                originalType: type, // 保留原始中文类型
+                messageId: result.data.id
+              }
+            });
+          } else {
+            res.status(400).json({
+              success: false,
+              message: '验证码发送失败',
+              error: result.error
+            });
+          }
         } else if (action === 'email-status') {
           // 获取邮件服务状态
           res.status(200).json({
@@ -220,6 +271,7 @@ export default async function handler(req, res) {
               supportedTypes: [
                 'appointment_confirmation',
                 'appointment_reminder',
+                'verification_code',
                 'custom'
               ]
             }
@@ -227,7 +279,7 @@ export default async function handler(req, res) {
         } else {
           res.status(400).json({
             success: false,
-            message: '无效的操作。支持的操作：send-email, email-status'
+            message: '无效的操作。支持的操作：send-email, send-verification-code, email-status'
           });
         }
         break;
