@@ -110,6 +110,35 @@ export default async function handler(req, res) {
           notes
         })
 
+        // 发送预约确认邮件
+        try {
+          const emailResult = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/api/appointments`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'send-email',
+              type: 'appointment_confirmation',
+              appointment: {
+                ...newAppointment,
+                appointmentTime: newAppointment.appointmentTime.toISOString()
+              }
+            })
+          });
+
+          const emailResponse = await emailResult.json();
+          
+          if (emailResponse.success) {
+            console.log('预约确认邮件发送成功');
+          } else {
+            console.warn('预约确认邮件发送失败:', emailResponse.error);
+          }
+        } catch (emailError) {
+          console.error('发送预约确认邮件时出错:', emailError);
+          // 邮件发送失败不影响预约创建，只记录错误
+        }
+
         res.status(201).json({
           success: true,
           data: newAppointment,

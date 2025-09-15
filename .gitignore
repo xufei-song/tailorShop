@@ -36,7 +36,7 @@ Thumbs.db
 
 # Template reference (ignore nested git repo)
 next.js/
-
+resend-nextjs-pages-router-example/
 #db
 dev.db
 

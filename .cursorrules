@@ -9,9 +9,11 @@ Authoritative References
 Template for Build and Problem-Solving
 - 参考模板工程目录（构建与问题解决的重要依据）：
   ./next.js/examples/
+- Resend 邮件功能参考实现：
+  ./resend-nextjs-pages-router-example/
 
 Guidance and Priorities
-- 参考优先级：本仓库现有实现 > 数据库配置指南 > API 接口文档 > 上述模板工程 > 官方文档。
+- 参考优先级：本仓库现有实现 > 数据库配置指南 > API 接口文档 > Resend 邮件功能参考 > 上述模板工程 > 官方文档。
 - 遵循官方最佳实践与默认约定，避免不必要的自定义与复杂化。
 - 默认部署目标为单机/轻量环境；如需扩展再进行优化与拆分。
 - 数据库相关操作请参考 DATABASE_SETUP.md 中的详细说明。
@@ -21,6 +23,7 @@ Operational Notes
 - 解决问题或选型时，首先查阅"Next.js 官方文档"与"模板工程实现"，保持一致性。
 - 数据库相关问题请优先参考 DATABASE_SETUP.md 中的配置说明和 API 接口文档。
 - API 接口开发请严格按照 API_DOCUMENTATION.md 中的规范实现，确保接口一致性。
+- 邮件功能开发请参考 resend-nextjs-pages-router-example 中的实现模式。
 - 使用 test/api-test.http 文件进行 API 接口测试，确保功能正确性。
 - 如需偏离上述参考，需给出明确理由（可维护性/安全/性能/成本等）。
 
@@ -49,5 +52,6 @@ Known Issues & TODO
 Build & Repo Boundaries
 - 本项目在仓库根目录构建与运行。
 - `next.js` 目录为下载的参考工程，禁止修改（只读）。如需实现功能，请在仓库根目录新增/修改代码。
+- `resend-nextjs-pages-router-example` 目录为 Resend 邮件功能参考工程，禁止修改（只读）。如需实现邮件功能，请参考其实现模式。
 - 业务页面与 API 放置于仓库根的 `pages/` 与 `pages/api/`。
 

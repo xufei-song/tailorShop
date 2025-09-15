@@ -57,6 +57,37 @@ export default async function handler(req, res) {
 
         const updatedAppointment = await AppointmentModel.update(id, updateData)
 
+        // 如果状态发生变化，发送邮件通知
+        if (updateData.isProcessed !== undefined) {
+          try {
+            const emailResult = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/api/appointments`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                action: 'send-email',
+                type: 'appointment_confirmation',
+                appointment: {
+                  ...updatedAppointment,
+                  appointmentTime: updatedAppointment.appointmentTime.toISOString()
+                }
+              })
+            });
+
+            const emailResponse = await emailResult.json();
+            
+            if (emailResponse.success) {
+              console.log('预约状态更新邮件发送成功');
+            } else {
+              console.warn('预约状态更新邮件发送失败:', emailResponse.error);
+            }
+          } catch (emailError) {
+            console.error('发送预约状态更新邮件时出错:', emailError);
+            // 邮件发送失败不影响预约更新，只记录错误
+          }
+        }
+
         res.status(200).json({
           success: true,
           data: updatedAppointment,
@@ -70,6 +101,36 @@ export default async function handler(req, res) {
         
         if (action === 'mark-processed') {
           const processedAppointment = await AppointmentModel.markAsProcessed(id)
+          
+          // 发送预约处理完成邮件通知
+          try {
+            const emailResult = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/api/appointments`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                action: 'send-email',
+                type: 'appointment_confirmation',
+                appointment: {
+                  ...processedAppointment,
+                  appointmentTime: processedAppointment.appointmentTime.toISOString()
+                }
+              })
+            });
+
+            const emailResponse = await emailResult.json();
+            
+            if (emailResponse.success) {
+              console.log('预约处理完成邮件发送成功');
+            } else {
+              console.warn('预约处理完成邮件发送失败:', emailResponse.error);
+            }
+          } catch (emailError) {
+            console.error('发送预约处理完成邮件时出错:', emailError);
+            // 邮件发送失败不影响预约处理，只记录错误
+          }
+          
           res.status(200).json({
             success: true,
             data: processedAppointment,

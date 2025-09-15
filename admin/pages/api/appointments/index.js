@@ -1,9 +1,20 @@
 import { AppointmentModel } from '../../../../lib/models/Appointment'
+const { sendSimpleTestEmail } = require('../../../../lib/email/simple-test')
 
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
   process.env.DATABASE_URL = "file:./dev.db"
   console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
+}
+
+// 检查邮件服务环境变量
+if (!process.env.RESEND_API_KEY) {
+  process.env.RESEND_API_KEY = "re_DvEBS6Y1_GCFMYcYyYUhuV47Ffo9doFv3"
+  console.log('设置 RESEND_API_KEY 环境变量:', process.env.RESEND_API_KEY)
+}
+if (!process.env.FROM_EMAIL) {
+  process.env.FROM_EMAIL = "onboarding@resend.dev"
+  console.log('设置 FROM_EMAIL 环境变量:', process.env.FROM_EMAIL)
 }
 
 export default async function handler(req, res) {
@@ -141,6 +152,23 @@ export default async function handler(req, res) {
           notes
         })
 
+        // 发送预约确认邮件
+        try {
+          const emailResult = await sendAppointmentConfirmation({
+            ...newAppointment,
+            appointmentTime: newAppointment.appointmentTime.toISOString()
+          });
+          
+          if (emailResult.success) {
+            console.log('预约确认邮件发送成功');
+          } else {
+            console.warn('预约确认邮件发送失败:', emailResult.error);
+          }
+        } catch (emailError) {
+          console.error('发送预约确认邮件时出错:', emailError);
+          // 邮件发送失败不影响预约创建，只记录错误
+        }
+
         res.status(201).json({
           success: true,
           data: newAppointment,
@@ -148,8 +176,64 @@ export default async function handler(req, res) {
         })
         break
 
+      case 'PUT':
+        // 邮件发送接口
+        const { action, type, appointment, to, subject, template, props } = req.body;
+
+        if (action === 'send-email') {
+          // 验证必填字段
+          if (!appointment || !appointment.email || !appointment.name) {
+            return res.status(400).json({
+              success: false,
+              message: '预约信息中邮箱和姓名为必填项'
+            });
+          }
+
+          // 发送简单测试邮件
+          const result = await sendSimpleTestEmail(
+            appointment.email,
+            `预约确认 - ${appointment.name}`,
+            `亲爱的 ${appointment.name}，您的预约已成功创建。预约时间：${appointment.appointmentTime}`
+          );
+
+          if (result.success) {
+            res.status(200).json({
+              success: true,
+              message: '邮件发送成功',
+              data: result.data
+            });
+          } else {
+            res.status(400).json({
+              success: false,
+              message: '邮件发送失败',
+              error: result.error
+            });
+          }
+        } else if (action === 'email-status') {
+          // 获取邮件服务状态
+          res.status(200).json({
+            success: true,
+            data: {
+              service: 'Resend',
+              configured: !!process.env.RESEND_API_KEY,
+              fromEmail: process.env.FROM_EMAIL || 'noreply@resend.dev',
+              supportedTypes: [
+                'appointment_confirmation',
+                'appointment_reminder',
+                'custom'
+              ]
+            }
+          });
+        } else {
+          res.status(400).json({
+            success: false,
+            message: '无效的操作。支持的操作：send-email, email-status'
+          });
+        }
+        break;
+
       default:
-        res.setHeader('Allow', ['GET', 'POST'])
+        res.setHeader('Allow', ['GET', 'POST', 'PUT'])
         res.status(405).json({
           success: false,
           message: `方法 ${method} 不被允许`
