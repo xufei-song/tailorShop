@@ -69,3 +69,52 @@ $env:BROWSER_TOOLS_HOST="127.0.0.1"; $env:BROWSER_TOOLS_PORT="3025"; npx -y @age
 # 端口被占用时：将 3025 改为 3026，三处同时修改（server、扩展面板、MCP）
 # 防火墙：首次运行允许 node.exe 通过专用网络
 ```
+
+# 邮件发送功能
+
+## 当前配置
+
+项目已集成 Resend 邮件发送功能，支持自动发送预约确认邮件。
+
+- **发送邮箱**：`onboarding@resend.dev`（Resend 测试域名）
+- **收件人限制**：目前只能发送到 `songxf17@gmail.com`（测试模式限制）
+- **API 接口**：管理端 `PUT /api/appointments` 支持邮件发送
+
+## 生产环境配置
+
+### 购买并配置自定义域名
+
+1. **购买域名**
+   - 购买一个自定义域名（如 `yourcompany.com`）
+   - 确保域名解析服务正常
+
+2. **在 Resend 中添加域名**
+   - 访问 [Resend 域名管理页面](https://resend.com/domains/add)
+   - 登录 Resend 账户
+   - 点击 "Add Domain" 添加您的域名
+   - 按照指示配置 DNS 记录（SPF、DKIM 等）
+
+3. **更新环境变量**
+   ```env
+   # 在 .env.local 中配置
+   RESEND_API_KEY="your-resend-api-key"
+   FROM_EMAIL="noreply@yourcompany.com"
+   ```
+
+4. **更新代码配置**
+   - 修改 `lib/email/simple-test.js` 中的 `FROM_EMAIL`
+   - 修改 `admin/pages/api/appointments/index.js` 中的 `FROM_EMAIL`
+
+### 验证域名配置
+
+域名验证成功后，您将能够：
+- 发送邮件到任何邮箱地址
+- 使用自定义的发送邮箱地址
+- 提高邮件投递率
+- 建立品牌信任度
+
+### 相关文档
+
+- [Resend 域名配置指南](https://resend.com/docs/domains/introduction)
+- [Resend 域名管理页面](https://resend.com/domains/add)
+- [邮件发送 API 文档](./EMAIL_SETUP.md)
