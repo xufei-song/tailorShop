@@ -3,6 +3,26 @@ import AppointmentsTab from '../components/AppointmentsTab';
 import BlogTab from '../components/BlogTab';
 import ImagesTab from '../components/ImagesTab';
 
+// 服务端重定向检查
+export async function getServerSideProps(context) {
+  // 这里可以添加实际的登录状态检查逻辑
+  // 例如检查 cookies、session 等
+  const isLoggedIn = false; // 暂时设为 false，用于测试重定向
+
+  if (!isLoggedIn) {
+    return {
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {},
+  };
+}
+
 export default function AdminHome() {
   // 状态管理
   const [activeTab, setActiveTab] = React.useState('appointments');
