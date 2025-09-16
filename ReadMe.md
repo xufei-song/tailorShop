@@ -80,6 +80,7 @@ $env:BROWSER_TOOLS_HOST="127.0.0.1"; $env:BROWSER_TOOLS_PORT="3025"; npx -y @age
 - **收件人限制**：目前只能发送到 `songxf17@gmail.com`（测试模式限制）
 - **API 接口**：管理端 `PUT /api/appointments` 支持邮件发送
 
+
 ## 生产环境配置
 
 ### 购买并配置自定义域名
@@ -118,3 +119,54 @@ $env:BROWSER_TOOLS_HOST="127.0.0.1"; $env:BROWSER_TOOLS_PORT="3025"; npx -y @age
 - [Resend 域名配置指南](https://resend.com/docs/domains/introduction)
 - [Resend 域名管理页面](https://resend.com/domains/add)
 - [邮件发送 API 文档](./EMAIL_SETUP.md)
+
+# CORS 跨域配置
+
+## 当前配置
+
+项目已配置 CORS 支持，允许前端（3000端口）调用管理端 API（3001端口）。
+
+### 开发环境
+- **允许所有域**：`Access-Control-Allow-Origin: *`
+- **支持方法**：GET, POST, PUT, DELETE, OPTIONS
+- **支持头**：Content-Type, Authorization
+
+### 生产环境（需要修改）
+- **白名单机制**：只允许指定域名访问
+- **安全防护**：防止恶意网站调用 API
+
+## ⚠️ 部署时重要提醒
+
+### 必须修改的文件
+**文件位置**：`admin/pages/api/appointments/index.js` 第 24-29 行
+
+```javascript
+// 当前配置（开发环境）
+const allowedOrigins = [
+  'http://localhost:3000',  // 前端开发环境
+  'http://localhost:3001',  // 管理端开发环境
+  'https://yourdomain.com', // ⚠️ 需要替换为实际域名
+  'https://www.yourdomain.com' // ⚠️ 需要替换为实际域名
+]
+```
+
+### 部署步骤
+1. **替换域名**：将 `yourdomain.com` 替换为您的实际域名
+2. **添加 HTTPS**：确保生产环境使用 HTTPS
+3. **测试验证**：部署后测试跨域请求是否正常
+4. **监控日志**：定期检查异常的跨域请求
+
+### OPTIONS 预检请求说明
+
+浏览器在发送跨域复杂请求（如 PUT + JSON）前会先发送 OPTIONS 预检请求：
+
+1. **触发条件**：跨域 + 复杂请求（PUT/DELETE + 自定义头）
+2. **工作流程**：OPTIONS 检查 → 实际请求
+3. **安全机制**：防止恶意网站调用您的 API
+
+### 安全建议
+
+- ✅ **生产环境**：使用白名单域名
+- ✅ **HTTPS**：生产环境必须使用 HTTPS
+- ✅ **定期审查**：检查允许的域名列表
+- ✅ **监控异常**：关注异常的跨域请求日志

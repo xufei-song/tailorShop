@@ -20,6 +20,32 @@ if (!process.env.FROM_EMAIL) {
 export default async function handler(req, res) {
   const { method } = req
 
+  // 设置 CORS 头
+  const allowedOrigins = [
+    'http://localhost:3000',  // 前端开发环境
+    'http://localhost:3001',  // 管理端开发环境
+    'https://yourdomain.com', // 生产环境域名（需要替换）
+    'https://www.yourdomain.com' // 生产环境 www 域名（需要替换）
+  ]
+  
+  const origin = req.headers.origin
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin)
+  } else if (process.env.NODE_ENV === 'development') {
+    // 开发环境允许所有来源
+    res.setHeader('Access-Control-Allow-Origin', '*')
+  }
+  
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+  res.setHeader('Access-Control-Max-Age', '86400')
+
+  // 处理 OPTIONS 预检请求
+  if (method === 'OPTIONS') {
+    res.status(200).end()
+    return
+  }
+
   // 添加调试打印
   console.log('=== 管理后台 API 请求调试信息 ===')
   console.log('请求方法:', method)

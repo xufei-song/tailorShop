@@ -213,7 +213,7 @@ export default function AppointmentPage() {
     setCodeError('')
 
     try {
-      const response = await fetch('/api/appointments', {
+      const response = await fetch('http://localhost:3001/api/appointments', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
