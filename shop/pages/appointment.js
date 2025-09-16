@@ -130,6 +130,20 @@ export default function AppointmentPage() {
     setIsSubmitting(true)
     
     try {
+      // 验证验证码是否已发送
+      if (!isCodeSent) {
+        setSubmitError('请先发送并输入验证码')
+        setIsSubmitting(false)
+        return
+      }
+
+      // 验证验证码是否已输入
+      if (!verificationCode) {
+        setSubmitError('请输入验证码')
+        setIsSubmitting(false)
+        return
+      }
+
       // 组合日期和时间
       const appointmentDateTime = new Date(selectedDate)
       const [hours, minutes] = selectedTime.split(':').map(Number)
@@ -140,7 +154,8 @@ export default function AppointmentPage() {
         name: customerName,
         phone: customerPhone,
         email: customerEmail,
-        notes: customerNotes
+        notes: customerNotes,
+        verificationCode: verificationCode
       })
       
       // 调用API创建预约
@@ -154,7 +169,8 @@ export default function AppointmentPage() {
           name: customerName,
           phone: customerPhone,
           email: customerEmail,
-          notes: customerNotes
+          notes: customerNotes,
+          verificationCode: verificationCode
         })
       })
       
@@ -230,8 +246,16 @@ export default function AppointmentPage() {
       if (result.success) {
         setIsCodeSent(true)
         setCodeError('')
+        // 显示成功消息
+        setTimeout(() => {
+          setCodeError('')
+        }, 3000)
       } else {
-        setCodeError(result.message || '验证码发送失败')
+        if (response.status === 429) {
+          setCodeError('验证码发送过于频繁，请1分钟后再试')
+        } else {
+          setCodeError(result.message || '验证码发送失败')
+        }
       }
     } catch (error) {
       console.error('发送验证码错误:', error)

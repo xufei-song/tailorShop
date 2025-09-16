@@ -1,4 +1,5 @@
 import { AppointmentModel } from '../../../../lib/models/Appointment'
+const { VerificationCodeModel } = require('../../../../lib/models/VerificationCode')
 
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
@@ -92,7 +93,7 @@ export default async function handler(req, res) {
 
       case 'POST':
         // 创建新预约
-        const { appointmentTime, name, phone, email, notes } = req.body
+        const { appointmentTime, name, phone, email, notes, verificationCode } = req.body
 
         // 验证必填字段
         if (!appointmentTime || !name || !phone || !email) {
@@ -100,6 +101,22 @@ export default async function handler(req, res) {
             success: false,
             message: '预约时间、姓名、手机号和邮箱为必填项'
           })
+        }
+
+        // 验证验证码（如果提供了验证码）
+        if (verificationCode) {
+          const verifyResult = await VerificationCodeModel.verify({
+            email,
+            code: verificationCode,
+            type: '预约验证码'
+          })
+
+          if (!verifyResult.success) {
+            return res.status(400).json({
+              success: false,
+              message: verifyResult.message
+            })
+          }
         }
 
         const newAppointment = await AppointmentModel.create({

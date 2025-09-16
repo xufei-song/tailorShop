@@ -1,5 +1,6 @@
 import { AppointmentModel } from '../../../../lib/models/Appointment'
 const { sendSimpleTestEmail, sendVerificationCode } = require('../../../../lib/email')
+const { VerificationCodeModel } = require('../../../../lib/models/VerificationCode')
 
 // 确保环境变量被设置
 if (!process.env.DATABASE_URL) {
@@ -247,13 +248,30 @@ export default async function handler(req, res) {
             });
           }
 
+          // 检查是否在冷却期内（1分钟内不能重复发送）
+          const isInCooldown = await VerificationCodeModel.isInCooldown(email, type, 1);
+          if (isInCooldown) {
+            return res.status(429).json({
+              success: false,
+              message: '验证码发送过于频繁，请1分钟后再试'
+            });
+          }
+
           // 生成6位数字验证码
-          const code = Math.floor(100000 + Math.random() * 900000).toString();
+          const code = VerificationCodeModel.generateCode();
 
           // 发送验证码邮件
           const result = await sendVerificationCode(email, code, type);
 
           if (result.success) {
+            // 将验证码存储到数据库，10分钟有效期
+            await VerificationCodeModel.create({
+              email,
+              code,
+              type,
+              expiresInMinutes: 10
+            });
+
             // 将中文类型转换为英文用于API响应
             let englishType;
             if (type === '注册验证码') {
@@ -273,10 +291,10 @@ export default async function handler(req, res) {
               message: '验证码发送成功',
               data: {
                 email: email,
-                code: code, // 注意：生产环境中不应该返回验证码
                 type: englishType,
                 originalType: type, // 保留原始中文类型
-                messageId: result.data.id
+                messageId: result.data.id,
+                expiresIn: 10 // 10分钟有效期
               }
             });
           } else {
@@ -284,6 +302,36 @@ export default async function handler(req, res) {
               success: false,
               message: '验证码发送失败',
               error: result.error
+            });
+          }
+        } else if (action === 'verify-code') {
+          // 验证验证码
+          const { email, code, type = '验证码' } = req.body;
+
+          // 验证必填字段
+          if (!email || !code) {
+            return res.status(400).json({
+              success: false,
+              message: '邮箱地址和验证码为必填项'
+            });
+          }
+
+          // 验证验证码
+          const verifyResult = await VerificationCodeModel.verify({
+            email,
+            code,
+            type
+          });
+
+          if (verifyResult.success) {
+            res.status(200).json({
+              success: true,
+              message: '验证码验证成功'
+            });
+          } else {
+            res.status(400).json({
+              success: false,
+              message: verifyResult.message
             });
           }
         } else if (action === 'email-status') {
@@ -305,7 +353,7 @@ export default async function handler(req, res) {
         } else {
           res.status(400).json({
             success: false,
-            message: '无效的操作。支持的操作：send-email, send-verification-code, email-status'
+            message: '无效的操作。支持的操作：send-email, send-verification-code, verify-code, email-status'
           });
         }
         break;
