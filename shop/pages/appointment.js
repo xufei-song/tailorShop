@@ -11,6 +11,10 @@ export default function AppointmentPage() {
   const [customerName, setCustomerName] = React.useState('')
   const [customerPhone, setCustomerPhone] = React.useState('')
   const [customerEmail, setCustomerEmail] = React.useState('')
+  const [verificationCode, setVerificationCode] = React.useState('')
+  const [isCodeSent, setIsCodeSent] = React.useState(false)
+  const [isSendingCode, setIsSendingCode] = React.useState(false)
+  const [codeError, setCodeError] = React.useState('')
   const [customerNotes, setCustomerNotes] = React.useState('')
   const [currentMonthOffset, setCurrentMonthOffset] = React.useState(0)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
@@ -184,8 +188,57 @@ export default function AppointmentPage() {
     setCustomerName('')
     setCustomerPhone('')
     setCustomerEmail('')
+    setVerificationCode('')
+    setIsCodeSent(false)
+    setCodeError('')
     setCustomerNotes('')
     setSubmitError('')
+  }
+
+  // 发送验证码
+  const sendVerificationCode = async () => {
+    if (!customerEmail) {
+      setCodeError('请先输入邮箱地址')
+      return
+    }
+
+    // 简单的邮箱格式验证
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(customerEmail)) {
+      setCodeError('请输入有效的邮箱地址')
+      return
+    }
+
+    setIsSendingCode(true)
+    setCodeError('')
+
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'send-verification-code',
+          email: customerEmail,
+          type: '预约验证码'
+        })
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setIsCodeSent(true)
+        setCodeError('')
+      } else {
+        setCodeError(result.message || '验证码发送失败')
+      }
+    } catch (error) {
+      console.error('发送验证码错误:', error)
+      setCodeError('验证码发送失败，请稍后重试')
+    } finally {
+      setIsSendingCode(false)
+    }
   }
 
   const currentMonth = generateCalendar()
@@ -364,11 +417,53 @@ export default function AppointmentPage() {
                 <input 
                   type="email" 
                   value={customerEmail} 
-                  onChange={(e) => setCustomerEmail(e.target.value)}
+                  onChange={(e) => {
+                    setCustomerEmail(e.target.value)
+                    // 如果邮箱改变，重置验证码状态
+                    if (isCodeSent) {
+                      setIsCodeSent(false)
+                      setVerificationCode('')
+                    }
+                    setCodeError('')
+                  }}
                   placeholder="请输入您的邮箱地址"
                   required
                   disabled={isSubmitting}
                 />
+              </div>
+
+              <div className="form-group">
+                <label>验证码</label>
+                <div className="verification-group">
+                  <input 
+                    type="text" 
+                    value={verificationCode} 
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    placeholder="请输入验证码"
+                    required
+                    disabled={isSubmitting || !isCodeSent}
+                    maxLength="6"
+                    className="verification-input"
+                  />
+                  <button 
+                    type="button"
+                    className="send-code-btn"
+                    onClick={sendVerificationCode}
+                    disabled={isSendingCode || isSubmitting || !customerEmail}
+                  >
+                    {isSendingCode ? '发送中...' : (isCodeSent ? '重新发送' : '发送验证码')}
+                  </button>
+                </div>
+                {codeError && (
+                  <div className="code-error-message">
+                    {codeError}
+                  </div>
+                )}
+                {isCodeSent && (
+                  <div className="code-success-message">
+                    验证码已发送到您的邮箱，请查收
+                  </div>
+                )}
               </div>
 
               <div className="form-group">
@@ -976,6 +1071,73 @@ export default function AppointmentPage() {
           min-height: 80px;
         }
 
+        .verification-group {
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+        }
+
+        .verification-input {
+          flex: 1;
+          margin-bottom: 0;
+        }
+
+        .send-code-btn {
+          padding: 14px 20px;
+          background: linear-gradient(135deg, #37c2cc, #2d3748);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+          min-width: 120px;
+          height: 52px;
+          box-sizing: border-box;
+        }
+
+        .send-code-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, #2d3748, #37c2cc);
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(55, 194, 204, 0.4);
+        }
+
+        .send-code-btn:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        .send-code-btn:disabled {
+          background: #e2e8f0;
+          color: #a0aec0;
+          cursor: not-allowed;
+          transform: none;
+          box-shadow: none;
+        }
+
+        .code-error-message {
+          background: #fed7d7;
+          color: #c53030;
+          padding: 8px 12px;
+          border-radius: 8px;
+          margin-top: 8px;
+          border: 1px solid #feb2b2;
+          font-size: 13px;
+          font-weight: 500;
+        }
+
+        .code-success-message {
+          background: #c6f6d5;
+          color: #2f855a;
+          padding: 8px 12px;
+          border-radius: 8px;
+          margin-top: 8px;
+          border: 1px solid #9ae6b4;
+          font-size: 13px;
+          font-weight: 500;
+        }
+
         .error-message {
           background: #fed7d7;
           color: #c53030;
@@ -1208,6 +1370,16 @@ export default function AppointmentPage() {
 
           .form-actions {
             flex-direction: column;
+          }
+
+          .verification-group {
+            flex-direction: column;
+            gap: 8px;
+          }
+
+          .send-code-btn {
+            width: 100%;
+            min-width: auto;
           }
 
           .dialog {
