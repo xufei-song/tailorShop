@@ -88,6 +88,27 @@ export const sharedStyles = `
     color: #92400e; 
     font-size: 1.25rem; 
   }
+  .pending-table-container { 
+    max-height: 400px; 
+    overflow-y: auto; 
+    border: 1px solid #e2e8f0; 
+    border-radius: 10px; 
+    background: #fff; 
+  }
+  .pending-table-container::-webkit-scrollbar { 
+    width: 8px; 
+  }
+  .pending-table-container::-webkit-scrollbar-track { 
+    background: #f1f5f9; 
+    border-radius: 4px; 
+  }
+  .pending-table-container::-webkit-scrollbar-thumb { 
+    background: #cbd5e1; 
+    border-radius: 4px; 
+  }
+  .pending-table-container::-webkit-scrollbar-thumb:hover { 
+    background: #94a3b8; 
+  }
   
   /* 预约信息头部和筛选样式 */
   .appointments-header { 

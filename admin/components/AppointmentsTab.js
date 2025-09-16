@@ -204,8 +204,8 @@ export default function AppointmentsTab() {
       <div className="appointments-section">
       {/* 未处理预约信息表格 */}
       <div className="pending-appointments-section">
-        <h2>未处理预约信息</h2>
-        <div className="table-container">
+        <h2>未处理预约信息 ({pendingAppointments.length} 条)</h2>
+        <div className="pending-table-container">
           <table className="appointments-table">
             <thead>
               <tr>
@@ -229,7 +229,7 @@ export default function AppointmentsTab() {
                     加载失败: {error}
                   </td>
                 </tr>
-              ) : pendingAppointments.slice(0, 5).map((appointment) => (
+              ) : pendingAppointments.map((appointment) => (
                 <tr key={appointment.id}>
                   <td>{new Date(appointment.appointmentTime).toLocaleString('zh-CN', {
                     year: 'numeric',
