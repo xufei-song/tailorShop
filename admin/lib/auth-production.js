@@ -3,27 +3,6 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { PrismaClient } from '@prisma/client'
 
-// 根据环境变量选择配置
-const isProduction = process.env.NODE_ENV === 'production'
-
-// 开发环境自动设置环境变量
-if (!isProduction) {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./dev.db"
-    console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
-  }
-
-  if (!process.env.NEXTAUTH_URL) {
-    process.env.NEXTAUTH_URL = "http://localhost:3001"
-    console.log('设置 NEXTAUTH_URL 环境变量:', process.env.NEXTAUTH_URL)
-  }
-
-  if (!process.env.NEXTAUTH_SECRET) {
-    process.env.NEXTAUTH_SECRET = "your-secret-key-change-this-in-production"
-    console.log('设置 NEXTAUTH_SECRET 环境变量')
-  }
-}
-
 const prisma = new PrismaClient()
 
 export const authOptions = {
@@ -36,7 +15,6 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
-          if (!isProduction) console.log('登录失败: 用户名和密码不能为空')
           return null
         }
 
@@ -46,16 +24,11 @@ export const authOptions = {
           })
 
           if (!admin || !admin.isActive) {
-            if (!isProduction) console.log('登录失败: 用户不存在或账户未激活')
             return null
           }
 
           // 检查账户锁定
           if (admin.lockedUntil && admin.lockedUntil > new Date()) {
-            if (!isProduction) {
-              const lockTime = Math.ceil((admin.lockedUntil - new Date()) / (1000 * 60))
-              console.log(`登录失败: 账户已被锁定，请 ${lockTime} 分钟后重试`)
-            }
             return null
           }
 
@@ -70,8 +43,6 @@ export const authOptions = {
                 lockedUntil: admin.loginAttempts >= 4 ? new Date(Date.now() + 15 * 60 * 1000) : null
               }
             })
-            
-            if (!isProduction) console.log('登录失败: 密码错误')
             return null
           }
 
@@ -85,8 +56,6 @@ export const authOptions = {
             }
           })
 
-          if (!isProduction) console.log('登录成功:', admin.username)
-          
           return {
             id: admin.id.toString(),
             username: admin.username,
@@ -135,21 +104,20 @@ export const authOptions = {
     maxAge: 24 * 60 * 60, // 24小时
   },
   secret: process.env.NEXTAUTH_SECRET,
-  debug: !isProduction, // 生产环境关闭调试
-  useSecureCookies: isProduction, // 生产环境使用安全Cookie
+  debug: false, // 生产环境关闭调试
+  useSecureCookies: process.env.NODE_ENV === 'production', // 只在真正的生产环境使用安全 Cookie
   trustHost: true,
   basePath: '/api/auth',
   logger: {
     error(code, metadata) {
+      // 生产环境日志记录
       console.error('NextAuth Error:', code, metadata)
     },
     warn(code) {
       console.warn('NextAuth Warning:', code)
     },
     debug(code, metadata) {
-      if (!isProduction) {
-        console.log('NextAuth Debug:', code, metadata)
-      }
+      // 生产环境不输出调试信息
     }
   }
 }

@@ -18,7 +18,8 @@
     "create-admin": "node scripts/create-admin.js",
     "create-admin-user": "node scripts/create-admin-user.js",
     "reset-prisma": "node scripts/reset-prisma.js",
-    "reset-prisma:kill": "node scripts/reset-prisma.js --kill"
+    "reset-prisma:kill": "node scripts/reset-prisma.js --kill",
+    "fix-jwt": "node scripts/fix-jwt-error.js"
   },
   "dependencies": {
     "@prisma/client": "latest",
