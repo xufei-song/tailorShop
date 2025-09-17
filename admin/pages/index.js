@@ -1,15 +1,47 @@
 import React from 'react';
+import { getServerSession } from 'next-auth/next';
+import { signOut } from 'next-auth/react';
 import AppointmentsTab from '../components/AppointmentsTab';
 import BlogTab from '../components/BlogTab';
 import ImagesTab from '../components/ImagesTab';
 
 // 服务端重定向检查
 export async function getServerSideProps(context) {
-  // 这里可以添加实际的登录状态检查逻辑
-  // 例如检查 cookies、session 等
-  const isLoggedIn = false; // 暂时设为 false，用于测试重定向
+  const { getServerSession } = await import('next-auth/next');
+  
+  // 使用完整的 NextAuth 配置
+  const session = await getServerSession(context.req, context.res, {
+    secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-this-in-production",
+    callbacks: {
+      async jwt({ token, user }) {
+        if (user) {
+          token.username = user.username
+          token.role = user.role
+        }
+        return token
+      },
+      async session({ session, token }) {
+        if (token) {
+          session.user.id = token.sub
+          session.user.username = token.username
+          session.user.role = token.role
+        }
+        return session
+      }
+    },
+    session: {
+      strategy: 'jwt',
+      maxAge: 24 * 60 * 60, // 24小时
+    },
+    jwt: {
+      maxAge: 24 * 60 * 60, // 24小时
+    },
+  });
 
-  if (!isLoggedIn) {
+  console.log('服务端认证检查 - Session:', session ? '存在' : '不存在');
+
+  if (!session) {
+    console.log('未找到会话，重定向到登录页面');
     return {
       redirect: {
         destination: '/login',
@@ -18,20 +50,45 @@ export async function getServerSideProps(context) {
     };
   }
 
+  console.log('找到有效会话，用户:', session.user?.username || session.user?.email);
+
+  // 清理 session 数据，确保可以序列化
+  const cleanSession = {
+    ...session,
+    user: {
+      ...session.user,
+      name: session.user?.name || null,
+      email: session.user?.email || null,
+      image: session.user?.image || null,
+    }
+  };
+
   return {
-    props: {},
+    props: { session: cleanSession },
   };
 }
 
-export default function AdminHome() {
+export default function AdminHome({ session }) {
   // 状态管理
   const [activeTab, setActiveTab] = React.useState('appointments');
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
 
   return (
     <div className="page">
       <header className="header">
         <div className="container nav">
           <div className="brand">TailorShop Admin</div>
+          <div className="user-info">
+            <span className="welcome-text">
+              欢迎，{session?.user?.username || session?.user?.email}
+            </span>
+            <button onClick={handleSignOut} className="signout-btn">
+              登出
+            </button>
+          </div>
         </div>
       </header>
 
@@ -64,8 +121,21 @@ export default function AdminHome() {
         .page { color: #0f172a; background: #ffffff; }
         .container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
         .header { border-bottom: 1px solid #e2e8f0; }
-        .nav { display: flex; align-items: center; height: 60px; }
+        .nav { display: flex; align-items: center; justify-content: space-between; height: 60px; }
         .brand { font-weight: 700; }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        .welcome-text { color: #64748b; font-size: 14px; }
+        .signout-btn { 
+          background-color: #ef4444; 
+          color: white; 
+          border: none; 
+          padding: 8px 16px; 
+          border-radius: 6px; 
+          font-size: 14px; 
+          cursor: pointer; 
+          transition: background-color 0.2s;
+        }
+        .signout-btn:hover { background-color: #dc2626; }
         .main { padding: 24px 0; }
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 12px; }
         .card { 

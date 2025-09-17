@@ -16,6 +16,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "create-admin": "node scripts/create-admin.js",
+    "create-admin-user": "node scripts/create-admin-user.js",
     "reset-prisma": "node scripts/reset-prisma.js",
     "reset-prisma:kill": "node scripts/reset-prisma.js --kill"
   },

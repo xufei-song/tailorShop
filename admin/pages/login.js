@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { signIn, getSession } from 'next-auth/react';
 
 export default function AdminLogin() {
   const [formData, setFormData] = useState({
@@ -7,7 +8,21 @@ export default function AdminLogin() {
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const router = useRouter();
+
+  // 检查是否已登录
+  useEffect(() => {
+    getSession().then((session) => {
+      console.log('登录页面 - 检查会话:', session ? '存在' : '不存在');
+      if (session) {
+        console.log('已登录，跳转到管理后台');
+        router.push('/'); // 跳转到根路径，即管理后台首页
+      } else {
+        console.log('未登录，显示登录表单');
+      }
+    });
+  }, [router]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -15,18 +30,33 @@ export default function AdminLogin() {
       ...prev,
       [name]: value
     }));
+    // 清除错误信息
+    if (error) setError('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
     
-    // 模拟登录过程
-    setTimeout(() => {
+    try {
+      const result = await signIn('credentials', {
+        username: formData.username,
+        password: formData.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('登录失败，请检查用户名和密码');
+        setIsLoading(false);
+      } else {
+        // 登录成功，跳转到管理后台首页
+        router.push('/');
+      }
+    } catch (error) {
+      setError('登录过程中发生错误，请重试');
       setIsLoading(false);
-      // 直接跳转到管理后台
-      router.push('/admin');
-    }, 1000);
+    }
   };
 
   return (
@@ -43,6 +73,12 @@ export default function AdminLogin() {
           </div>
 
           <form onSubmit={handleSubmit} className="login-form">
+            {error && (
+              <div className="error-message">
+                {error}
+              </div>
+            )}
+            
             <div className="form-group">
               <label htmlFor="username">用户名</label>
               <input
@@ -170,6 +206,16 @@ export default function AdminLogin() {
 
         .login-form {
           margin-bottom: 24px;
+        }
+
+        .error-message {
+          background-color: #fee2e2;
+          color: #dc2626;
+          padding: 12px 16px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          font-size: 14px;
+          border: 1px solid #fecaca;
         }
 
         .form-group {
