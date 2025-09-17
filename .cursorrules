@@ -6,6 +6,8 @@ Authoritative References
 - 数据库配置与使用指南：./doc/DATABASE_SETUP.md
 - API 接口文档：./doc/API_DOCUMENTATION.md
 - 邮件功能配置指南：./doc/EMAIL_SETUP.md
+- 管理后台认证系统设置：./doc/ADMIN_AUTH_SETUP.md
+- Prisma客户端管理脚本：./PRISMA_SCRIPTS.md
 
 Template for Build and Problem-Solving
 - 参考模板工程目录（构建与问题解决的重要依据）：
@@ -20,6 +22,7 @@ Guidance and Priorities
 - 数据库相关操作请参考 doc/DATABASE_SETUP.md 中的详细说明。
 - API 接口开发请参考 doc/API_DOCUMENTATION.md 中的接口规范和测试用例。
 - 邮件功能开发请参考 doc/EMAIL_SETUP.md 中的配置说明。
+- Prisma客户端问题优先使用 scripts/reset-prisma.js 脚本解决。
 
 Operational Notes
 - 解决问题或选型时，首先查阅"Next.js 官方文档"与"模板工程实现"，保持一致性。
@@ -28,6 +31,7 @@ Operational Notes
 - 邮件功能开发请参考 doc/EMAIL_SETUP.md 中的配置说明和 resend-nextjs-pages-router-example 中的实现模式。
 - 使用 test/api-test.http 文件进行 API 接口测试，确保功能正确性。
 - 所有文档生成和更新都应在 doc/ 目录下进行，保持文档集中管理。
+- 数据库管理：遇到Prisma客户端问题时，优先使用 npm run reset-prisma 进行重置。
 - 如需偏离上述参考，需给出明确理由（可维护性/安全/性能/成本等）。
 
 Environment Configuration
@@ -46,12 +50,26 @@ Environment Configuration
   - admin/pages/api/appointments/index.js
   - admin/pages/api/appointments/[id].js
   - admin/pages/api/appointments/stats.js
+  - admin/pages/api/auth/[...nextauth].js
+
+Database Management Scripts
+- Prisma客户端重置脚本：scripts/reset-prisma.js
+- 使用方法：
+  - 标准重置：npm run reset-prisma
+  - 强制重置（包含进程终止）：npm run reset-prisma:kill
+  - 直接运行：node scripts/reset-prisma.js [--kill]
+- 功能：删除损坏的Prisma客户端目录、重新生成客户端、同步数据库结构、验证所有表
+- 跨平台兼容：支持Windows、Linux、macOS
+- 管理员用户创建：npm run create-admin（默认凭据：admin/admin123）
 
 Known Issues & TODO
 - [ ] 修复环境变量配置不一致问题：当前 lib/prisma.ts 使用绝对路径，API 接口使用相对路径
 - [ ] 统一环境变量管理：建议使用 .env.local 文件统一管理环境变量
 - [ ] 移除硬编码的环境变量设置，改为从环境变量文件读取
 - [ ] 完善 doc/ 目录下的文档结构，确保所有配置和 API 文档都在此目录下
+- [ ] 考虑添加数据库备份和恢复脚本
+- [ ] 考虑添加数据库迁移脚本管理
+- [ ] 完善Prisma客户端重置脚本的错误处理机制
 
 Build & Repo Boundaries
 - 本项目在仓库根目录构建与运行。
