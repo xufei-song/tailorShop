@@ -39,7 +39,8 @@ npm run dev:admin    # http://localhost:3001
 
 # 数据库浏览
 $env:DATABASE_URL="file:../dev.db"; npx prisma studio --browser none
-
+ $env:DATABASE_URL="file:./dev.db"; npx prisma studio --port 5555
+ 
 Necessary MCP Tools
 - 
 BrowserTools MCP 启动与连接（Windows）

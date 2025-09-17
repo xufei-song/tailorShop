@@ -22,7 +22,6 @@ Guidance and Priorities
 - 数据库相关操作请参考 doc/DATABASE_SETUP.md 中的详细说明。
 - API 接口开发请参考 doc/API_DOCUMENTATION.md 中的接口规范和测试用例。
 - 邮件功能开发请参考 doc/EMAIL_SETUP.md 中的配置说明。
-- Prisma客户端问题优先使用 scripts/reset-prisma.js 脚本解决。
 
 Operational Notes
 - 解决问题或选型时，首先查阅"Next.js 官方文档"与"模板工程实现"，保持一致性。
