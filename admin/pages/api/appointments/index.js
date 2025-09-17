@@ -298,9 +298,19 @@ export default async function handler(req, res) {
               }
             });
           } else {
+            // 根据错误类型提供更具体的错误信息
+            let errorMessage = '验证码发送失败';
+            if (result.error && result.error.statusCode === 403) {
+              errorMessage = '邮件服务配置问题，请检查发送方域名设置';
+            } else if (result.error && result.error.statusCode === 429) {
+              errorMessage = '验证码发送过于频繁，请稍后再试';
+            } else if (result.error && result.error.message) {
+              errorMessage = result.error.message;
+            }
+            
             res.status(400).json({
               success: false,
-              message: '验证码发送失败',
+              message: errorMessage,
               error: result.error
             });
           }

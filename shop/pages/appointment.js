@@ -253,6 +253,8 @@ export default function AppointmentPage() {
       } else {
         if (response.status === 429) {
           setCodeError('验证码发送过于频繁，请1分钟后再试')
+        } else if (response.status === 403) {
+          setCodeError('邮件服务配置问题，请联系客服')
         } else {
           setCodeError(result.message || '验证码发送失败')
         }
