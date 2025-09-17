@@ -3,8 +3,9 @@ Project Framework
 
 Authoritative References
 - Next.js 官方文档（遇到实现/决策时的首要参考）：https://nextjs.org/docs
-- 数据库配置与使用指南：./DATABASE_SETUP.md
-- API 接口文档：./API_DOCUMENTATION.md
+- 数据库配置与使用指南：./doc/DATABASE_SETUP.md
+- API 接口文档：./doc/API_DOCUMENTATION.md
+- 邮件功能配置指南：./doc/EMAIL_SETUP.md
 
 Template for Build and Problem-Solving
 - 参考模板工程目录（构建与问题解决的重要依据）：
@@ -13,18 +14,20 @@ Template for Build and Problem-Solving
   ./resend-nextjs-pages-router-example/
 
 Guidance and Priorities
-- 参考优先级：本仓库现有实现 > 数据库配置指南 > API 接口文档 > Resend 邮件功能参考 > 上述模板工程 > 官方文档。
+- 参考优先级：本仓库现有实现 > doc/ 目录文档 > Resend 邮件功能参考 > 上述模板工程 > 官方文档。
 - 遵循官方最佳实践与默认约定，避免不必要的自定义与复杂化。
 - 默认部署目标为单机/轻量环境；如需扩展再进行优化与拆分。
-- 数据库相关操作请参考 DATABASE_SETUP.md 中的详细说明。
-- API 接口开发请参考 API_DOCUMENTATION.md 中的接口规范和测试用例。
+- 数据库相关操作请参考 doc/DATABASE_SETUP.md 中的详细说明。
+- API 接口开发请参考 doc/API_DOCUMENTATION.md 中的接口规范和测试用例。
+- 邮件功能开发请参考 doc/EMAIL_SETUP.md 中的配置说明。
 
 Operational Notes
 - 解决问题或选型时，首先查阅"Next.js 官方文档"与"模板工程实现"，保持一致性。
-- 数据库相关问题请优先参考 DATABASE_SETUP.md 中的配置说明和 API 接口文档。
-- API 接口开发请严格按照 API_DOCUMENTATION.md 中的规范实现，确保接口一致性。
-- 邮件功能开发请参考 resend-nextjs-pages-router-example 中的实现模式。
+- 数据库相关问题请优先参考 doc/DATABASE_SETUP.md 中的配置说明和 API 接口文档。
+- API 接口开发请严格按照 doc/API_DOCUMENTATION.md 中的规范实现，确保接口一致性。
+- 邮件功能开发请参考 doc/EMAIL_SETUP.md 中的配置说明和 resend-nextjs-pages-router-example 中的实现模式。
 - 使用 test/api-test.http 文件进行 API 接口测试，确保功能正确性。
+- 所有文档生成和更新都应在 doc/ 目录下进行，保持文档集中管理。
 - 如需偏离上述参考，需给出明确理由（可维护性/安全/性能/成本等）。
 
 Environment Configuration
@@ -48,6 +51,7 @@ Known Issues & TODO
 - [ ] 修复环境变量配置不一致问题：当前 lib/prisma.ts 使用绝对路径，API 接口使用相对路径
 - [ ] 统一环境变量管理：建议使用 .env.local 文件统一管理环境变量
 - [ ] 移除硬编码的环境变量设置，改为从环境变量文件读取
+- [ ] 完善 doc/ 目录下的文档结构，确保所有配置和 API 文档都在此目录下
 
 Build & Repo Boundaries
 - 本项目在仓库根目录构建与运行。
