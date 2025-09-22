@@ -38,7 +38,7 @@ Thumbs.db
 next.js/
 resend-nextjs-pages-router-example/
 #db
-dev.db
+#dev.db
 
 #test 
 test/
