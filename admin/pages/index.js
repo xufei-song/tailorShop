@@ -4,39 +4,14 @@ import { signOut } from 'next-auth/react';
 import AppointmentsTab from '../components/AppointmentsTab';
 import BlogTab from '../components/BlogTab';
 import ImagesTab from '../components/ImagesTab';
+import { authOptions as activeAuthOptions } from '../lib/auth-loader.js'
 
 // 服务端重定向检查
 export async function getServerSideProps(context) {
   const { getServerSession } = await import('next-auth/next');
   
   // 使用完整的 NextAuth 配置
-  const session = await getServerSession(context.req, context.res, {
-    secret: process.env.NEXTAUTH_SECRET || "your-secret-key-change-this-in-production",
-    callbacks: {
-      async jwt({ token, user }) {
-        if (user) {
-          token.username = user.username
-          token.role = user.role
-        }
-        return token
-      },
-      async session({ session, token }) {
-        if (token) {
-          session.user.id = token.sub
-          session.user.username = token.username
-          session.user.role = token.role
-        }
-        return session
-      }
-    },
-    session: {
-      strategy: 'jwt',
-      maxAge: 24 * 60 * 60, // 24小时
-    },
-    jwt: {
-      maxAge: 24 * 60 * 60, // 24小时
-    },
-  });
+  const session = await getServerSession(context.req, context.res, activeAuthOptions);
 
   console.log('服务端认证检查 - Session:', session ? '存在' : '不存在');
 
