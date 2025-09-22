@@ -1,0 +1,6 @@
+# .dockerignore 内容
+.env
+.git
+.dockerignore
+Dockerfile
+*.log

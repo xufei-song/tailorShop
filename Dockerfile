@@ -21,7 +21,6 @@ COPY . .
 
 # 生成 Prisma 客户端 + 构建项目
 RUN npm run db:generate && \
-    npm run db:push && \
     npm run build:web && \
     npm run build:admin
 
