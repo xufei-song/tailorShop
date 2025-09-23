@@ -58,6 +58,7 @@ COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 
 # 复制构建后的应用文件
+COPY --from=builder /app/shop/data ./shop/data
 COPY --from=builder /app/shop/.next ./shop/.next
 COPY --from=builder /app/shop/public ./shop/public
 COPY --from=builder /app/admin/.next ./admin/.next
