@@ -229,7 +229,7 @@ export default function AppointmentPage() {
     setCodeError('')
 
     try {
-      const response = await fetch('http://localhost:3001/api/appointments', {
+      const response = await fetch(`${process.env.ADMIN_BASE_URL || 'http://localhost:3001'}/api/appointments`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

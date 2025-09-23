@@ -6,24 +6,31 @@ WORKDIR /app
 RUN echo "https://mirrors.huaweicloud.com/alpine/v3.21/main/" > /etc/apk/repositories && \
     echo "https://mirrors.huaweicloud.com/alpine/v3.21/community/" >> /etc/apk/repositories && \
     apk update && \
-    apk add python3 make g++ sqlite
-
-# 复制 .env 和依赖配置
-COPY .env.production ./.env
-COPY package*.json ./
+    apk add --no-cache python3 make g++ && \
+    rm -rf /var/cache/apk/*
 
 # npm 国内源安装依赖
-RUN npm config set registry https://registry.npm.taobao.org && \
-    npm install
+COPY package*.json ./
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install && \
+    npm cache clean --force
 
 # 复制项目文件
-COPY . .
+COPY .env.production ./.env
+COPY prisma ./prisma
+COPY tsconfig.json ./
+COPY next.config.js ./
+COPY admin ./admin
+COPY shop ./shop
+COPY scripts ./scripts
+COPY lib ./lib
+COPY start.sh ./start.sh
 
 # 生成 Prisma 客户端 + 构建项目
-RUN npm run db:generate && \
+RUN npx prisma generate && \
     npm run build:web && \
-    npm run build:admin
-
+    npm run build:admin && \
+    npm prune --production
 
 # 生产阶段
 FROM node:18-alpine
@@ -33,17 +40,20 @@ WORKDIR /app
 RUN echo "https://mirrors.huaweicloud.com/alpine/v3.21/main/" > /etc/apk/repositories && \
     echo "https://mirrors.huaweicloud.com/alpine/v3.21/community/" >> /etc/apk/repositories && \
     apk update && \
-    apk add sqlite
+    apk add --no-cache sqlite && \
+    rm -rf /var/cache/apk/*
 
 # 复制运行时文件
-COPY --from=builder /app/.env ./
 COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/shop ./shop
-COPY --from=builder /app/admin ./admin
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/shop/.next ./shop/.next
+COPY --from=builder /app/shop/public ./shop/public
+COPY --from=builder /app/admin/.next ./admin/.next
+COPY --from=builder /app/admin/public ./admin/public
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/.env ./
 COPY --from=builder /app/start.sh ./start.sh
+COPY --from=builder /app/scripts ./scripts
 
 # 赋予启动脚本权限
 RUN chmod +x start.sh

@@ -1,6 +1,30 @@
 # .dockerignore 内容
-.env
 .git
 .dockerignore
 Dockerfile
+
+# 排除源代码（构建阶段已编译，生产阶段不需要）
+admin/src
+shop/src
+pages
+
+# 排除文档和日志
+doc/
+*.md
 *.log
+
+# 排除开发工具配置
+.vscode/
+.eslintrc.js
+.prettierrc
+jest.config.js
+
+# 排除本地构建产物（避免覆盖容器内的构建结果）
+shop/.next
+admin/.next
+
+# 排除其他非必需文件
+node_modules
+.env
+.env.local
+.env.development
