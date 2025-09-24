@@ -164,8 +164,31 @@ export default async function handler(req, res) {
         })
         break
 
+      case 'PUT':
+        // 转发至管理端，不在此处理业务逻辑
+        try {
+          console.log('<xqc>转发到管理端:', process.env.NEXT_PUBLIC_ADMIN_BASE_URL)
+          const adminResponse = await fetch(`${process.env.NEXT_PUBLIC_ADMIN_BASE_URL}/api/appointments`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(req.body)
+          })
+
+          const result = await adminResponse.json().catch(() => ({}))
+          return res.status(adminResponse.status).json(result)
+        } catch (forwardError) {
+          console.error('转发到管理端失败:', forwardError)
+          return res.status(502).json({
+            success: false,
+            message: '转发到管理端失败'
+          })
+        }
+        break
+
       default:
-        res.setHeader('Allow', ['GET', 'POST'])
+        res.setHeader('Allow', ['GET', 'POST', 'PUT'])
         res.status(405).json({
           success: false,
           message: `方法 ${method} 不被允许`
