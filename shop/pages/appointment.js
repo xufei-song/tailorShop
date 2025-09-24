@@ -229,8 +229,7 @@ export default function AppointmentPage() {
     setCodeError('')
 
     try {
-      console.log('使用 NEXT_PUBLIC_ADMIN_BASE_URL 发送邮件:', process.env.NEXT_PUBLIC_ADMIN_BASE_URL)
-      const response = await fetch(`${process.env.NEXT_PUBLIC_ADMIN_BASE_URL}/api/appointments`, {
+      const response = await fetch('/api/appointments', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

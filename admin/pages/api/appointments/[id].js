@@ -61,7 +61,7 @@ export default async function handler(req, res) {
         if (updateData.isProcessed !== undefined) {
           try {
             // 打印当前使用的 NEXTAUTH_URL 值
-            console.log('使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
+            console.log('<xqc>使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
             
             const emailResult = await fetch(`${process.env.NEXTAUTH_URL}/api/appointments`, {
               method: 'PUT',
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
           // 发送预约处理完成邮件通知
           try {
             // 打印当前使用的 NEXTAUTH_URL 值
-            console.log('使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
+            console.log('<xqc>使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
             
             const emailResult = await fetch(`${process.env.NEXTAUTH_URL}/api/appointments`, {
               method: 'PUT',

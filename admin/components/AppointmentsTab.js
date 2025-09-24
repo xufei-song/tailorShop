@@ -62,6 +62,7 @@ export default function AppointmentsTab() {
       if (params.limit) queryParams.append('limit', params.limit);
       
       const url = `/api/appointments${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      console.log('<xqc>url ======>', url);
       const response = await fetch(url);
       
       if (!response.ok) {
