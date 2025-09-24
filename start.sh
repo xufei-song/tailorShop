@@ -1,29 +1,40 @@
-#!/bin/sh
+#!/bin/bash
 # 优化启动脚本，支持优雅退出
 
 # 处理终止信号
 cleanup() {
-  echo "收到终止信号，正在优雅关闭服务..."
-  kill -TERM $WEB_PID $ADMIN_PID 2>/dev/null
-  wait $WEB_PID $ADMIN_PID 2>/dev/null
-  echo "所有服务已关闭"
+  echo "正在停止服务..."
+  if [ -f "web.pid" ]; then
+    kill $(cat web.pid) 2>/dev/null
+    rm -f web.pid
+  fi
+  if [ -f "admin.pid" ]; then
+    kill $(cat admin.pid) 2>/dev/null
+    rm -f admin.pid
+  fi
+  echo "服务已停止"
   exit 0
 }
 
-trap 'cleanup' SIGTERM SIGINT
+trap cleanup SIGINT SIGTERM
 
-# 启动前端服务
+# 确保日志目录存在
+mkdir -p logs
+
+# 启动前端服务（日志通过logger.js重定向）
 npm run start:web &
-WEB_PID=$!
+echo $! > web.pid
 
-# 启动管理端服务（前台运行）
+echo "前端服务已启动 (PID: $(cat web.pid))"
+
+# 启动管理端服务（日志通过logger.js重定向）
 npm run start:admin &
-ADMIN_PID=$!
+echo $! > admin.pid
 
-# 等待任一进程退出
-wait -n $WEB_PID $ADMIN_PID
+echo "管理端服务已启动 (PID: $(cat admin.pid))"
 
-# 如果任一进程意外退出，清理所有进程
-exit_code=$?
-echo "服务意外退出，退出码: $exit_code"
+# 等待服务意外退出
+wait -n
+
+# 如果有服务退出，清理所有服务
 cleanup

@@ -8,19 +8,8 @@ const isProduction = process.env.NODE_ENV === 'production'
 
 // 开发环境自动设置环境变量
 if (!isProduction) {
-  if (!process.env.DATABASE_URL) {
-    process.env.DATABASE_URL = "file:./prisma/dev.db"
-  }
   console.log('设置 DATABASE_URL 环境变量:', process.env.DATABASE_URL)
-
-  if (!process.env.NEXTAUTH_URL) {
-    process.env.NEXTAUTH_URL = "http://localhost:3001"
-  }
   console.log('设置 NEXTAUTH_URL 环境变量:', process.env.NEXTAUTH_URL)
-
-  if (!process.env.NEXTAUTH_SECRET) {
-    process.env.NEXTAUTH_SECRET = "your-secret-key-change-this-in-production"
-  }
   console.log('设置 NEXTAUTH_SECRET 环境变量', process.env.NEXTAUTH_SECRET)
 }
 

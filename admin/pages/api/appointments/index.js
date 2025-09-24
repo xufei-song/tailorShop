@@ -23,10 +23,8 @@ export default async function handler(req, res) {
 
   // 设置 CORS 头
   const allowedOrigins = [
-    process.env.SHOP_BASE_URL || 'http://localhost:3000',  // 前端shop地址
-    process.env.ADMIN_BASE_URL || 'http://localhost:3001', // 管理端地址
-    'https://yourdomain.com', // 备用生产环境域名（可以删除）
-    'https://www.yourdomain.com' // 备用生产环境 www 域名（可以删除）
+    process.env.SHOP_BASE_URL,  // 前端shop地址
+    process.env.ADMIN_BASE_URL  // 管理端地址
   ]
   
   const origin = req.headers.origin

@@ -60,7 +60,10 @@ export default async function handler(req, res) {
         // 如果状态发生变化，发送邮件通知
         if (updateData.isProcessed !== undefined) {
           try {
-            const emailResult = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/api/appointments`, {
+            // 打印当前使用的 NEXTAUTH_URL 值
+            console.log('使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
+            
+            const emailResult = await fetch(`${process.env.NEXTAUTH_URL}/api/appointments`, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
@@ -104,7 +107,10 @@ export default async function handler(req, res) {
           
           // 发送预约处理完成邮件通知
           try {
-            const emailResult = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3001'}/api/appointments`, {
+            // 打印当前使用的 NEXTAUTH_URL 值
+            console.log('使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
+            
+            const emailResult = await fetch(`${process.env.NEXTAUTH_URL}/api/appointments`, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
