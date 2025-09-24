@@ -129,8 +129,8 @@ export default async function handler(req, res) {
 
         // 发送预约确认邮件
         try {
-          console.log('<xqc>使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
-          const emailResult = await fetch(`${process.env.NEXTAUTH_URL}/api/appointments`, {
+          console.log('<xqc>使用 NEXTAUTH_URL 发送邮件:', process.env.NEXT_PUBLIC_NEXTAUTH_URL)
+          const emailResult = await fetch(`${process.env.NEXT_PUBLIC_NEXTAUTH_URL}/api/appointments`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
