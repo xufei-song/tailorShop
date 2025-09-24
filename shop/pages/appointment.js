@@ -230,7 +230,7 @@ export default function AppointmentPage() {
 
     try {
       const response = await fetch('/api/appointments', {
-        method: 'PUT',
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
