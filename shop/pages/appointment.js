@@ -229,8 +229,9 @@ export default function AppointmentPage() {
     setCodeError('')
 
     try {
-      const response = await fetch('/api/appointments', {
-        method: 'POST',
+      console.log('<xqc><sendCode>使用 NEXTAUTH_URL 发送邮件:', process.env.NEXTAUTH_URL)
+      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/appointments`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
